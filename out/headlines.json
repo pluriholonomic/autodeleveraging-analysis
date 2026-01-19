@@ -1,0 +1,25 @@
+{
+  "derived": {
+    "factor_naive_expected_over_observed": 2.178694864343588,
+    "naive_expected_pnl_closed_usd": 98103722.75052729
+  },
+  "headline": {
+    "prod_overshoot_vs_needed_usd": 45028665.7191367,
+    "queue_total_overshoot_usd": 653552663.5146928,
+    "winner_overcollateralization_equity_over_pnl": {
+      "mean": 303.3037517609294,
+      "median": 4.412841840523463,
+      "n_users": 17771,
+      "p10": 2.2831242405183443,
+      "p90": 14.958451014684034,
+      "trimmed_mean": 6.661853854176803
+    }
+  },
+  "inputs": {
+    "gap_ms": 5000,
+    "horizon_ms": 0,
+    "hyperreplay_canonical_realtime_csv": "/Users/nagumba/Documents/Projects/ADL-experiments/adl-analysis-minimal/external/HyperReplay/data/canonical/adl_detailed_analysis_REALTIME.csv",
+    "out_root": "/Users/nagumba/Documents/Projects/ADL-experiments/adl-analysis-minimal/out",
+    "trim_alpha": 0.03
+  }
+}

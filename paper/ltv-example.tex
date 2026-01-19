@@ -1,0 +1,35 @@
+
+\subsection{Example of the Solvency vs. Long-Term Revenue Trade-Off}\label{app:exchange-incentives}
+This example illustrates a fundamental tension: the risk-minimizing policy (RAP) may be suboptimal for the exchange's long-term value (LTV) because it disproportionately liquidates high-leverage users who generate the most fees. Under certain conditions, a ``fairer'' policy like Pro-Rata (PR), which preserves these high-value users, yields higher total utility for the exchange.
+
+\iparagraph{Setup.}
+Consider an exchange with two profitable users $i\in\{H,L\}$. User $H$ is high-leverage ($\lambda_H > \lambda_L$) and high-revenue; user $L$ is safer but generates less fee volume.
+The exchange must raise a budget $b$ via haircuts $h=(h_H, h_L)$ to cover a deficit.
+Its objective combines immediate safety (minimizing insolvency risk) and future revenue (LTV):
+\[
+U^{\mathrm{exch}}(h)\;=\;\underbrace{-\mathrm{Loss}(h)}_{\text{Immediate Safety}}\;+\;\underbrace{\beta\sum_{i\in\{H,L\}} \theta_i(1-h_i)\lambda_i}_{\text{Future Revenue (LTV)}},
+\]
+where $\mathrm{Loss}(h) = L_0 - \alpha_H h_H - \alpha_L h_L$ is the expected insurance fund draw, and $\theta_i \lambda_i$ is the expected future fee revenue per unit of equity from user $i$.
+We assume $\alpha_H/e_H > \alpha_L/e_L$, meaning user $H$ provides the cheapest risk reduction per dollar of haircut.
+
+\iparagraph{Policy comparison.}
+We compare two policies:
+\begin{itemize}
+    \item \emph{RAP (Risk-Minimizing):} Prioritizes risk reduction above all.
+    Since $H$ offers the best ``bang for the buck'' in safety ($\alpha_H/e_H > \alpha_L/e_L$),\footnote{The marginal reduction in loss per unit of budget is $\frac{\partial \mathrm{Loss}}{\partial h_i} \frac{d h_i}{d (\text{budget})} = \frac{\alpha_i}{e_i}$. Since user $H$ has higher leverage, they have a higher risk coefficient $\alpha_H$, making $\alpha_H/e_H$ the steepest descent direction for the loss function.} RAP fully targets $H$ first: $h^{\mathrm{RAP}} = (b/e_H, 0)$ (assuming $b < e_H$).
+    \item \emph{Pro-Rata (Revenue-Preserving):} Spreads the pain evenly, setting $h^{\mathrm{PR}}_i = \frac{b}{e_H+e_L}$ for both users. This is less efficient for immediate safety but preserves more of user $H$'s position.
+\end{itemize}
+
+\iparagraph{When an exchange prefers Pro-Rata to maximize long-term revenue.}
+The exchange prefers PR over RAP when the LTV gain from saving user $H$ outweighs the increased immediate risk.
+The utility difference is:
+\[
+\Delta U = U^{\mathrm{exch}}(h^{\mathrm{PR}}) - U^{\mathrm{exch}}(h^{\mathrm{RAP}}) 
+\;=\; \underbrace{\Delta h_H (\beta \theta_H \lambda_H - \alpha_H)}_{\text{Gain from saving } H} \;-\; \underbrace{h^{\mathrm{PR}}_L (\alpha_L - \beta \theta_L \lambda_L)}_{\text{Cost of cutting } L}.
+\]
+If user $H$ is sufficiently profitable ($\theta_H$ is large), then $\Delta U > 0$.
+Specifically, PR dominates RAP if the relative revenue of the high-leverage user exceeds a threshold:
+\[
+\frac{\theta_H}{\theta_L} \;\ge\; \Theta^\star\;=\;\frac{h^{\mathrm{PR}}_L}{\Delta h_H}\cdot\frac{\lambda_L}{\lambda_H}\;+\;\frac{\alpha_H-\frac{h^{\mathrm{PR}}_L}{\Delta h_H}\alpha_L}{\beta\,\lambda_H\,\theta_L}.
+\]
+While RAP is ``optimal'' for preventing immediate insolvency, it can be myopic. If high-leverage traders are the exchange's cash cows, the exchange has a rational incentive to use Pro-Rata to keep them active, even at the cost of slightly higher short-term risk.

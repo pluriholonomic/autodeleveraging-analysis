@@ -1,0 +1,25 @@
+{
+  "O0": 45028665.7191367,
+  "O_max_band": 51673606.60922572,
+  "O_min_band": 45028665.7191367,
+  "band_max_ms": 10000,
+  "discounted": {
+    "500": {
+      "DeltaO_disc": 3798204.3197197616,
+      "O_disc": 48826870.03885646
+    },
+    "1000": {
+      "DeltaO_disc": 3934059.843922034,
+      "O_disc": 48962725.563058734
+    },
+    "2000": {
+      "DeltaO_disc": 3856804.942609586,
+      "O_disc": 48885470.661746286
+    },
+    "5000": {
+      "DeltaO_disc": 3811484.037885107,
+      "O_disc": 48840149.75702181
+    }
+  },
+  "sweep_csv": "/Users/nagumba/Documents/Projects/ADL-experiments/adl-analysis-minimal/out/eval_horizon_sweep_gap_ms=5000.csv"
+}

@@ -1,0 +1,138 @@
+
+\subsection{Opposing Schur orderings for time to solvency and LTV}\label{app:proof-opposing-orders}
+
+We formalize the fundamental trade-off between aggressive debt reduction (safety) and trader fee retention (value), formalizing the example in Appendix~\ref{app:exchange-incentives}.
+Let $n_t = |\mathcal{W}_t|$.
+Given any feasible strategy $\pi$, write $z_t(\pi)\in\reals_+^{n_t}$ for the vector of residual debts at time $t$ (sorted in decreasing order).
+Let $h_{t,i}^{\pi}\in[0,1]$ be the haircut fraction for agent $i$ with equity $e_{t,i}$, so that the haircut mass is $m_{t,i}(\pi) = h_{t,i}^{\pi} e_{t,i}$.
+We write $m_t(\pi)\in\reals_+^{n_t}$ for the corresponding vector of haircut masses.
+Let $Z_t\in\reals_+^{n_t}$ denote the equity shock at time $t$, following the notation of Section~\ref{subsec:next-deficit}.
+These evolve componentwise as
+\[
+  z_{t+1,i}(\pi)=z_{t,i}(\pi)+Z_{t+1,i}-m_{t,i}(\pi),
+\]
+so summing from $\tau=0$ to $t-1$ yields the conservation–of–mass identity
+\begin{equation}\label{eq:conservation-mass}
+  z_t(\pi)
+  =
+  z_0+\sum_{\tau=1}^t Z_\tau-\sum_{\tau=0}^{t-1} m_\tau(\pi).
+\end{equation}
+This ensures that the equity at time $t$ is either initial equity, was gained or lost in a price shock, or haircut. 
+
+\begin{proposition}[Solvency-Revenue Trade-off]\label{prop:solvency-revenue}
+Let $A$ and $B$ be two strategies facing the same shock sequence $(Z_t)_t$. Assume:
+\begin{enumerate}
+    \item[(i)] \emph{Safety Dominance:} For all $t < \tau_{\mathrm{solv}}(A)$, strategy $A$ maintains weakly smaller residuals than $B$ in the weak submajorization order: $z_t(A) \preceq_w z_t(B)$.
+    \item[(ii)] \emph{Retention Value:} Let $M_t(\pi):=\sum_{\tau=0}^{t-1} m_\tau(\pi)$ be the cumulative haircut vector and suppose the lifetime value takes the form
+    \[
+      \mathrm{LTV}(\pi)=\sum_t \beta^t G_t(M_t(\pi)),
+    \]
+    where each stage value $G_t:\reals_+^{n_t}\to\reals$ is Schur–concave and coordinate‑wise nonincreasing in $M_t$ (more cumulative liquidations in the weak submajorization order reduce exchange LTV).
+\end{enumerate}
+Then:
+\begin{enumerate}
+    \item[(a)] $\tau_{\mathrm{solv}}(A) \le \tau_{\mathrm{solv}}(B)$ (Strategy $A$ is safer).
+    \item[(b)] $\mathrm{LTV}(A) \le \mathrm{LTV}(B)$ (Strategy $B$ generates more value).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+\noindent We prove this in two steps.
+
+\noindent \emph{Step 1: Solvency time.}
+For any $t<\tau_{\mathrm{solv}}(A)$ we have $z_t(A)\preceq_w z_t(B)$ by (i).
+If $B$ is solvent at some such time $t$ so that $z_t(B)=0$, then weak submajorization on $\reals_+^{n_t}$ forces $z_t(A)=0$ as well, since the zero vector is minimal in this order.
+Hence $B$ cannot become solvent strictly before $A$, and $\tau_{\mathrm{solv}}(A) \le \tau_{\mathrm{solv}}(B)$ almost surely.
+
+\noindent \emph{Step 2: LTV.}
+From the conservation–of–mass identity~\eqref{eq:conservation-mass} and the fact that $z_0$ and $(Z_\tau)_\tau$ are common across strategies, the cumulative haircuts $M_t(\pi):=\sum_{\tau=0}^{t-1} m_\tau(\pi)$ satisfy
+\[
+  M_t(\pi)
+  =
+  z_0+\sum_{\tau=1}^t Z_\tau-z_t(\pi),
+\]
+so that
+\[
+  M_t(A)-M_t(B)
+  =
+  z_t(B)-z_t(A).
+\]
+For each $t<\tau_{\mathrm{solv}}(A)$, assumption~(i) gives $z_t(A)\preceq_w z_t(B)$, and subtracting from the common vector $z_0+\sum_{\tau=1}^t \xi_\tau$ reverses the weak submajorization order, yielding $M_t(A)\succeq_w M_t(B)$.
+By Schur–concavity and coordinate‑wise monotonicity of each $G_t$ in (ii), this implies $G_t(M_t(A))\le G_t(M_t(B))$ for all $t$, so
+\[
+  \mathrm{LTV}(A)
+  \;=\;
+  \sum_t \beta^t G_t(M_t(A))
+  \;\le\;
+  \sum_t \beta^t G_t(M_t(B))
+  \;=\;
+  \mathrm{LTV}(B).
+\]
+\end{proof}
+
+\iparagraph{Examples.}
+We first give a one–step illustration of Proposition~\ref{prop:solvency-revenue} and then show how its hypotheses can fail for the literal queue versus capped pro–rata policies.
+
+\iparagraph{Single–period trade-off.}
+Consider a single round with two winners and common initial residuals $z_0=(1,1)$.
+Let strategy $A$ use aggressive haircuts $M_1(A)=(1,1)$, fully clearing both accounts so that $z_1(A)=(0,0)$.
+Let strategy $B$ use milder haircuts $M_1(B)=(1,0)$, clearing only the first account and leaving $z_1(B)=(0,1)$.
+Then $z_1(A)\preceq_w z_1(B)$ and $M_1(A)\succeq_w M_1(B)$, so the hypotheses of Proposition~\ref{prop:solvency-revenue} hold with $T=1$.
+For a Schur–concave, coordinate‑wise nonincreasing stage value such as
+\[
+  G_1(M)\;:=\;-\|M\|_2^2,
+\]
+we obtain $G_1(M_1(A))=-2$ and $G_1(M_1(B))=-1$, so $\mathrm{LTV}(A)\le\mathrm{LTV}(B)$, exactly exhibiting the safety–versus–value trade‑off.
+
+\iparagraph{Queue versus capped pro–rata.}
+Now consider the familiar one–round example with two winners, equities $e=(1,1)$, and budget $b=1$.
+Under capped pro–rata we have haircuts $h^{\mathrm{PR}}=(\tfrac12,\tfrac12)$, masses $m^{\mathrm{PR}}=(\tfrac12,\tfrac12)$, and residuals $z^{\mathrm{PR}}=(\tfrac12,\tfrac12)$.
+Under a queue policy we instead have $h^{\mathrm{Q}}=(1,0)$, so $m^{\mathrm{Q}}=(1,0)$ and $z^{\mathrm{Q}}=(0,1)$.
+In weak submajorization order, $z^{\mathrm{PR}}\prec_w z^{\mathrm{Q}}$ and likewise $m^{\mathrm{PR}}\prec_w m^{\mathrm{Q}}$.
+Thus no choice of labels $A,B$ can make pro–rata simultaneously satisfy the safety‑dominance condition $z_t(A)\preceq_w z_t(B)$ and the ``more cumulative haircuts'' condition $M_t(A)\succeq_w M_t(B)$ in Proposition~\ref{prop:solvency-revenue}.
+Moreover, for any Schur–concave, coordinate‑wise nonincreasing $G$ (for instance $G(M)=-\|M\|_2^2$), we have $G(m^{\mathrm{Q}})\le G(m^{\mathrm{PR}})$, so in this toy case the safer policy (pro–rata) also delivers \emph{higher} user value.
+This shows that while Proposition~\ref{prop:solvency-revenue} captures a structural opposing–orders phenomenon, its hypotheses do not hold mechanically for every queue versus capped pro–rata comparison.
+
+% \paragraph{Monotone dynamics (MLR/TP2).}
+% A transition kernel $K(x,y)$ on ordered spaces is \emph{totally positive of order 2 (TP2)} if for all $x<x'$ and $y<y'$,
+% \[
+% K(x,y)\,K(x',y')\ \ge\ K(x,y')\,K(x',y).
+% \]
+% TP2 implies a monotone likelihood‑ratio (MLR) ordering in $y$ given $x$ and yields \emph{isotone couplings}: if one state is larger than another (in the relevant order) at time $t$, then under TP2 shocks and a coordinate‑wise nondecreasing update $z_{t+1}=F_t(z_t,\xi_{t+1})$, the dominance can be preserved pathwise under a suitable coupling of the shocks (\cf~\citep[Chs.~1 and 4]{ShakedShanthikumar2007}).
+% This is the monotonicity assumption invoked in the formal results below.
+
+% \paragraph{Example (stronger than coordinate‑wise convexity).}
+% We first show an example that our framework for Schur orderings is better than more general than enforcing coordinate wise convexity of a strategy.
+% Consider one round with two winners, equities $e=(1,1)$, caps $\beta=(1,1)$, and budget $b=1$.
+% Let policy $A$ use proportional haircuts $h^A=(\tfrac12,\tfrac12)$; let policy $B$ use a queue $h^B=(1,0)$.
+% Reweighted residuals (with $\rho\equiv 1$) are $z^A=(\tfrac12,\tfrac12)$ and $z^B=(0,1)$, so $z^A\prec_w z^B$ but no coordinate‑wise dominance holds.
+% Hence for any separable convex increasing $L(x)=\sum_i \varphi(x_i)$, $L(z^A)\le L(z^B)$ by Schur–convexity; for masses $m=e\cdot h$, $m^A=(\tfrac12,\tfrac12)$ and $m^B=(1,0)$ give $G(m^A)\ge G(m^B)$ for any separable concave nonincreasing $G(m)=\sum_i R_i(m_i)$.
+% This motivates the theorem below.
+
+
+% \begin{proposition}[Opposing Schur orderings]\label{thm:opposing-orders}
+%   Fix feasible strategies $A,B$ and let $\mathcal{W}_t$ be the active winner set.
+%   Let $\tau_{\mathrm{def}}:=\inf\{t:\,D_t>0\}$ be the first default time and set $T:=\tau_{\mathrm{solv}}(B\,|\,\tau_{\mathrm{def}})$.
+%   For each $t$, write residuals in the common comonotone order $z_t(u)\in\reals_+^{|\mathcal{W}_t|}$, $u\in\{A,B\}$.
+%   Assume:
+%   \begin{enumerate}
+%     \item[(i)] For all $t<T$, $z_t(A)\prec_w z_t(B)$ (weak submajorization on decreasing rearrangements).
+%     \item[(ii)] $z_{t+1}=F_t(z_t,\xi_{t+1})$ is coordinate‑wise nondecreasing and the shock kernel is TP2; thus there exists an \emph{isotone coupling} that preserves (i) pathwise for $t<T$ \citep[Chs.~1 and 4]{ShakedShanthikumar2007}.
+%     \item[(iii)] Haircuts are given by a coordinate‑wise nondecreasing map $h_t=H_t(z_t)$ and per‑step budgets are equal: $\sum_{i\in \mathcal{W}_t} e_{t,i}h_{t,i}=b_t$ for all $t<T$.
+%   \end{enumerate}
+%   Then:
+%   \begin{enumerate}
+%     \item[(a)] For any separable convex nondecreasing stage loss $L^{\mathrm{solv}}_t(x)=\sum_{i\in \mathcal{W}_t}\varphi_{t,i}(x_i)$, $\tau_{\mathrm{solv}}(A\,|\,\tau_{\mathrm{def}})\le \tau_{\mathrm{solv}}(B\,|\,\tau_{\mathrm{def}})$.
+%     \item[(b)] Let $R_{t,i}:\reals_+\to\reals$ be concave nonincreasing and define $G_t(m)=\sum_{i\in \mathcal{W}_t}R_{t,i}(m_i)$ on masses $m_{t,i}=e_{t,i}h_{t,i}$. For any $S\le T$ and $\beta\in(0,1]$,
+%     \[
+%       \mathrm{LTV}_S(u):=\sum_{t=\tau_{\mathrm{def}}}^{S}\beta^t\,G_t(m_t(u))
+%       \qquad\Rightarrow\qquad
+%       \mathrm{LTV}_S(A)\ \ge\ \mathrm{LTV}_S(B).
+%     \]
+%   \end{enumerate}
+%   \end{proposition}
+%   \begin{proof}
+%   \emph{Step 1 (Schur losses; isotone propagation).} For $L^{\mathrm{solv}}_t(x)=\sum_i\varphi_{t,i}(x_i)$ with each $\varphi_{t,i}$ convex nondecreasing, $L^{\mathrm{solv}}_t$ is Schur–convex and coordinate‑wise nondecreasing; thus $z_t(A)\prec_w z_t(B)\Rightarrow L^{\mathrm{solv}}_t(z_t(A))\le L^{\mathrm{solv}}_t(z_t(B))$. By (ii) and TP2, an isotone coupling \citep[Chs.~1 and 4]{ShakedShanthikumar2007} preserves $z_t(A)\prec_w z_t(B)$ \emph{pathwise} for all $t<T$, so the inequality holds along coupled paths.
+%   \emph{Step 2 (Solvency time).} The solvency time is nonincreasing in the stage‑loss path; hence $\tau_{\mathrm{solv}}(A\,|\,\tau_{\mathrm{def}})\le \tau_{\mathrm{solv}}(B\,|\,\tau_{\mathrm{def}})$ almost surely, proving (a).
+%   \emph{Step 3 (Continuation value).} With equal per‑step budgets and $h_t=H_t(z_t)$ coordinate‑wise nondecreasing, the haircut masses satisfy $m_t(A)\prec m_t(B)$ (majorization with equal sums). For concave nonincreasing $R_{t,i}$, $G_t(m)=\sum_i R_{t,i}(m_i)$ is Schur–concave, so $G_t(m_t(A))\ge G_t(m_t(B))$ for all $t\le T$; summing (discounting) yields (b).
+%   \end{proof}

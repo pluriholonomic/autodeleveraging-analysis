@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Lint
+        run: uv run ruff check src/
+
+      - name: Format check
+        run: uv run ruff format --check src/
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Run tests
+        run: uv run pytest
+
+  figures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Generate figures
+        run: uv run oss-adl --out ./out plots
+
+      - name: Verify figures generated
+        run: |
+          test -f out/figures/01_headlines.png
+          test -f out/figures/05_policy_per_wave_performance.png
+          test -f out/figures/09_cumulative_regret_historical.png
+          echo "All key figures generated successfully"
+
+  full-reproduction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Install texlive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-base texlive-latex-extra texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra texlive-science texlive-pictures texlive-bibtex-extra biber
+
+      - name: Run full reproduction
+        run: ./run-all.sh --full
+
+      - name: Verify outputs
+        run: |
+          test -f out/figures/01_headlines.png
+          test -f out/figures/09_cumulative_regret_historical.png
+          test -f out/figures/10a_overshoot_regret.png
+          test -f out/figures/10b_fairness_regret.png
+          test -f out/figures/10c_total_regret.png
+          test -f paper/main_corrected.pdf
+          echo "Full reproduction completed successfully"

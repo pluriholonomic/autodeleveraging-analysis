@@ -1,0 +1,13 @@
+{
+  "01_headlines.png": "241020a2a38db0112d62e66b8aaf89bf1a34ca1cb25421754ea22750f707abe1",
+  "02_overshoot_vs_horizon.png": "63eb9c9c9c3b2479bd28403fda7840e0c714b4cf7cb0ef1d213094c533415da8",
+  "04_undo_fraction_hist.png": "beb5051781f0f14e83cba87b5c7d62e410d42c342b04d92e62075f9168ac4ece",
+  "05_policy_per_wave_performance.png": "4d674bcfcb4b606af1e68cd261b11e2d24f0a7982a9829f8bd399ec771594cc2",
+  "06_policy_per_wave_cumulative_overshoot.png": "1f93d25036e8f984251f510991c0862b3672fb71376459e7e45a5613129aca6d",
+  "07_ptsr_pmr_per_wave.png": "db347163eebb23a86c6223789aea15d0fe6c1cc26886c31446017cf72b63926d",
+  "08_rd_nse_per_wave.png": "e2eeb64ca7c29e773c12a4522c7aee6b991227e3391a5823375dd1ecb9689412",
+  "09_cumulative_regret_historical.png": "1ac91af17d87131b4c832f65205540c5668b043f8a57f90a0afec803685565a0",
+  "10a_overshoot_regret.png": "105bb0dadd99ebc72793e0ca6b6dab66210670d4aa30c58a73e2e6ed0ee9ac7a",
+  "10b_fairness_regret.png": "c385cef50fbb90293fe408a31b0afcf6b2ea21fc99ff49c892bece12653176be",
+  "10c_total_regret.png": "db180385d6e865357709e161770a98dad562c4c5a045a84237c9853acb7b12f9"
+}

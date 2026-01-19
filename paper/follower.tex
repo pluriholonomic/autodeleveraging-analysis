@@ -1,0 +1,173 @@
+
+\subsection{Follower Strategic Responses}\label{app:follower-robustness}
+We study two types of follower strategic responses.
+First, we show that pro-rata haircuts can lead to low leverage users responding by leaving an exchange earlier than higher leverage users.
+This imposes a negative feedback loop as the exchange's remaining users are higher risk.
+Secondly, we study traders who aim to add liquidity to the exchange to cover a deficit.
+These traders are speculating on profits that can be made after an ADL event.
+We show that such users are incentivized to wait long than the exchange solvency time.
+
+\subsubsection{Adverse Selection Under Pro-Rata}\label{app:follower-adverse}
+We model the ADL interaction as a repeated Stackelberg game: in every round $t$ the exchange (leader) moves first and the surviving winners (followers) best respond.
+Each stage looks like a one-round Stackelberg problem, but the outcomes feed into subsequent rounds through the evolving of winner equities $e_{T,i}$ and the winning set $\mathcal{W}_t$.
+At the start of round $t$ the exchange publicly commits to a severity/haircut rule (\eg~queue, pro-rata, RAP) that maps the realized deficit $D_t$ and winner book $\mathcal{W}_t$ to haircut shares.
+After observing $\theta_t$ and anticipating $D_t$, each winner chooses whether to keep its position active (accepting the induced haircut) or to exit/migrate, receiving outside option $u_0$.
+Payoffs are $U_i^{(\pi)}=\mu_i-\Expect[H_{t,i}^{(\pi)}]$; type $i$ exits whenever this falls below $u_0$.
+
+A \emph{death spiral} occurs when pro-rata haircuts force the safest (low-leverage) winners to churn first, shrinking $W_t$, which in turn raises the future haircut share for the remaining winners, triggering additional exits and further eroding liquidity.
+We show that RAP breaks this feedback loop by tilting the follower game against high-leverage accounts.
+
+\iparagraph{Setup.}
+Let $i$ index a profitable trader with effective equity $e_{t,i}$, leverage $\lambda_{t,i}$, and expected per-round utility $\mu_i$.
+Normalize severity and deficits by $\bar\theta=\Expect[\theta_t]$, $\bar D=\Expect[D_t]$, and write $\bar W=\Expect[W_t]$ for the expected equity mass of winners.
+Under pro-rata, the haircut share of $i$ is $s^{\mathrm{PR}}_{t,i}=e_{t,i}/W_t$, so the realized haircut mass is
+\[
+H^{\mathrm{PR}}_{t,i}=\theta_t D_t\, s^{\mathrm{PR}}_{t,i}.
+\]
+For RAP with a nondecreasing weight $g$, the share becomes
+\[
+s^{\mathrm{RAP}}_{t,i}=\frac{e_{t,i}\,\lambda_{t,i} g(\lambda_{t,i})}{\sum_{j\in W_t} e_{t,j}\,\lambda_{t,j} g(\lambda_{t,j})},
+\qquad
+H^{\mathrm{RAP}}_{t,i}=\theta_t D_t\, s^{\mathrm{RAP}}_{t,i}.
+\]
+\iparagraph{Risk-intensity comparator.}
+Define the equity‑weighted market risk intensity at round $t$ by
+\[
+\mu^{(g)}_t\ :=\ \frac{\sum_{j\in W_t} e_{t,j}\,\lambda_{t,j} g(\lambda_{t,j})}{\sum_{j\in W_t} e_{t,j}}.
+\]
+\begin{lemma}[When RAP burdens a trader less than Pro‑Rata]\label{lem:rap-vs-pr-share}
+For any winner $i$,
+\[
+s^{\mathrm{RAP}}_{t,i}\ \le\ s^{\mathrm{PR}}_{t,i}
+\quad\Longleftrightarrow\quad
+\lambda_{t,i}\,g(\lambda_{t,i})\ \le\ \mu^{(g)}_t.
+\]
+If $g$ is strictly increasing and $\lambda_{t,i}$ is strictly below the equity‑weighted market average in the $g$‑scale, the inequality is strict.
+\end{lemma}
+\begin{proof}
+Compute
+\[
+\frac{s^{\mathrm{RAP}}_{t,i}}{s^{\mathrm{PR}}_{t,i}}
+\ =\
+\frac{e_{t,i}\lambda_{t,i} g(\lambda_{t,i})/\sum_j e_{t,j}\lambda_{t,j} g(\lambda_{t,j})}{e_{t,i}/\sum_j e_{t,j}}
+\ =\
+\frac{\lambda_{t,i} g(\lambda_{t,i})}{\mu^{(g)}_t}.
+\]
+The claim follows immediately.
+\end{proof}
+
+\iparagraph{Participation thresholds.}
+Each trader type $i$ has a reservation utility $u_0$: the expected per-round payoff it can secure outside the ADL venue (\eg~by migrating flow to another exchange, posting liquidity in a different product, or simply investing idle cash in a risk-free instrument).
+We treat $u_0>0$ as exogenous and, unless stated otherwise, common across trader types.
+We note that heterogeneity in reservation utility can be captured by indexing it as $u_{0,i}$ without changing the argument.
+
+A trader remains active only if the ADL-adjusted payoff exceeds this fallback value.
+We formalize this by defining the net utility under policy $\pi$ as
+\[
+U_i^{(\pi)} := \mu_i - \Expect[H_{t,i}^{(\pi)}],
+\]
+and saying that $i$ participates in a given regime iff $U_i^{(\pi)} \ge u_0$.
+Equivalently, the \emph{participation threshold} is the maximum haircut burden $\Expect[H_{t,i}^{(\pi)}]$ that keeps $i$ indifferent, namely $\mu_i-u_0$.
+\begin{corollary}[Pro‑Rata death spiral vs.\ RAP retention]\label{cor:death-spiral}
+Fix a type $i$ and suppose there is a set of rounds of positive probability on which $\lambda_{t,i} g(\lambda_{t,i})\le \mu^{(g)}_t$ (so $s^{\mathrm{RAP}}_{t,i}\le s^{\mathrm{PR}}_{t,i}$ by Lemma~\ref{lem:rap-vs-pr-share}).
+If, over the same distribution of rounds,
+\[
+\mu_i - \Expect\big[\theta_t D_t\, s^{\mathrm{PR}}_{t,i}\big]\ <\ u_0
+\ \ \le\ \
+\mu_i - \Expect\big[\theta_t D_t\, s^{\mathrm{RAP}}_{t,i}\big],
+\]
+then the participation constraint fails under pro‑rata but holds under RAP: type $i$ exits in the pro‑rata regime while remaining under RAP.
+\end{corollary}
+
+\iparagraph{Examples and calibration.}
+Consider two winners, $L$ (low leverage) and $H$ (high leverage), who trade for two rounds.
+Equities are $(e_L,e_H)=(60,40)$, leverage levels are $(\lambda_L,\lambda_H)=(2,6)$, expected per-round utilities are $(\mu_L,\mu_H)=(12,40)$, and the outside option is $u_0=2$.
+Each round the deficit equals the total haircut budget ($\theta_t=1$) with $D_1=40$ and $D_2=30$.
+
+\emph{Pro-rata.}
+Shares equal equity weights: $s_i^{\mathrm{PR}}=e_i/(e_L+e_H)$, so $s^{\mathrm{PR}}=(0.6,0.4)$ even though both traders lose the \emph{same haircut factor} $h^{\mathrm{PR}}=H_i^{\mathrm{PR}}/e_i=\theta_t D_t/W_t=0.4$.
+Round~1 haircut masses are $H^{\mathrm{PR}}=(24,16)$ and utilities are $U^{\mathrm{PR}}=(\!-12,24)$.
+Trader $L$ churns because $U_L^{\mathrm{PR}}<u_0$, leaving only $H$ for round~2.
+With $W_2=40$ the next deficit $D_2=30$ forces $H_{2,H}^{\mathrm{PR}}=30$ (i.e., haircut factor $0.75$), giving $U_{2,H}^{\mathrm{PR}}=10$; solvency is preserved but the equity base has already halved, so any larger $D_2$ would wipe out the last winner, illustrating the death spiral.
+
+\emph{RAP with $g(\lambda)=\lambda$.}
+Weights scale as $e_i\lambda_i^2$, so $L$'s share collapses to $s_L^{\mathrm{RAP}}=240/(240+1440)\approx0.14$ and $H$'s share rises to $0.86$.
+The round~1 haircut factors become $h_L^{\mathrm{RAP}}\approx0.095$ and $h_H^{\mathrm{RAP}}\approx0.86$ (masses $H^{\mathrm{RAP}}=(5.7,34.3)$), yielding $U^{\mathrm{RAP}}=(6.3,5.7)>u_0$, so both types remain for round~2.
+With both accounts active in round~2, shares remain tilted toward $H$ and haircuts $(4.3,25.7)$ keep both traders above $u_0$, preventing churn and stabilizing $W_t$.
+This concrete two-player, two-round example mirrors the equilibria predicted by Appendix~\ref{app:mh-example} and the empirical replay in \S\ref{sec:numerics}: pro-rata drives the safest capital away first, whereas RAP reallocates the burden toward high-leverage accounts and keeps the equity base intact.
+\subsubsection{Waiting Game and MDIC-NW}\label{app:follower-wait}
+
+\iparagraph{Game.}
+When an ADL event creates a deficit $D_t$, the exchange moves first: it announces the contemporaneous severity $\theta_t$ (hence the haircut budget $\theta_t D_t$) together with the liquidity premium $\kappa_t$ it is willing to pay per unit of external capital.\footnote{In practice, this occurs via either an increase in the expected payment for users who stake to an insurance fund (\eg~\cite{DriftInsuranceFund}) or add assets to an HLP/LLP style vault~\cite{HyperliquidHLPVaults,LighterWhitepaper}}
+A Backstop Liquidity Provider (BLP) then decides whether to intervene immediately by injecting any $q_t\in[0,D_t]$ units, or to wait $u\ge 1$ additional rounds before posting the same quantity.
+Waiting exposes the BLP to time discounting (with a factor $\beta^u$) and to the future premium schedule $(\theta_{t+u},\kappa_{t+u})$.
+The BLP’s payoff from intervening in round $t+u$ with size $q$ is $\beta^u q(\theta_{t+u}-\kappa_{t+u})$, while the exchange’s objective is to restore solvency before a deadline by ensuring that the entire deficit is filled (so delay harms solvency).
+
+This Stackelberg game involves the exchange posting incentives as leader and BLPs optimally choose a stopping time and quantity as a follower.
+The setup captures the ``waiting game’’ intuition: unless the contract guarantees non-negative per-unit surplus right now, rational liquidity providers will defer, pushing resolution beyond the solvency window.
+We note that this resembles other waiting games in Maximal Extractable Value (MEV) auctions that have been studied empirically on live systems~\cite{messias2025express,mamageishvili2025timeboost}.
+
+\iparagraph{Per‑unit surplus and waiting.}
+Let a Backstop Liquidity Provider (BLP) be able to absorb up to $D_t$ units at time $t$.
+Write the per‑unit liquidity premium as $\kappa_t\ge 0$ (execution cost plus risk per unit, e.g., $\kappa_t=\Gamma_t/D_t$ when the premium is linear in size) and define the per‑unit net surplus
+\[
+\delta_t\ :=\ \theta_t - \kappa_t.
+\]
+If the BLP executes $q\in[0,D_t]$ units at time $t$, the immediate surplus is $q\,\delta_t$; deferring the same $q$ to a later time $t+u$ yields discounted surplus $\beta^u q\,\delta_{t+u}$.
+
+\iparagraph{No-wait condition.}
+We say the exchange enforces a per‑unit ``No‑Wait'' constraint when $\delta_t\ge 0$ (equivalently, $\theta_t D_t \ge \Gamma_t$ in the linear‑premium case).
+
+\begin{lemma}[Per‑unit No‑Wait implies immediate action]\label{lem:no-wait}
+Suppose $\beta\in(0,1]$, the exchange enforces $\delta_t\ge 0$, and the net per‑unit surplus is nonincreasing over time: $\delta_{t+u}\le \delta_t$ for all $u\ge 0$ (e.g., when $\theta_{t+u}\le \theta_t$ and $\kappa_{t+u}\ge \kappa_t$).
+Then for any $q\in[0,D_t]$, executing $q$ immediately at $t$ weakly dominates waiting:
+\[
+q\,\delta_t\ \ge\ \beta^u\,q\,\delta_{t+u}\qquad\forall\,u\ge 0.
+\]
+In particular, the BLP’s optimal stopping time is $\tau^\star=t$ and, if capacity allows, $q_t^\star=D_t$.
+\end{lemma}
+\begin{proof}
+By assumption, $\delta_{t+u}\le \delta_t$ and $\beta^u\le 1$ for all $u\ge 0$, hence $\beta^u q\,\delta_{t+u}\le q\,\delta_t$ for any fixed $q\in[0,D_t]$.
+Summing over an optimal decomposition of $D_t$ into infinitesimal units yields the stated dominance and the immediate‑execution optimality.
+\end{proof}
+
+\begin{corollary}[No‑Wait bounds solvency recovery]\label{cor:nowait-solv}
+Let $\tau_{\mathrm{def}}$ denote the default time and recall the solvency recovery clock $\tau_{\mathrm{solv}}$ from \S\ref{subsec:opposite-orders}.
+If the exchange enforces $\delta_t\ge 0$ for all rounds between $\tau_{\mathrm{def}}$ and the first round in which the deficit is zero, then $\tau_{\mathrm{solv}}=\tau_{\mathrm{def}}+1$.
+Hence solvency is restored within a single round of the default event.
+\end{corollary}
+\begin{proof}
+Lemma~\ref{lem:no-wait} implies that at $\tau_{\mathrm{def}}$ the BLP injects $q_{\tau_{\mathrm{def}}}^\star=D_{\tau_{\mathrm{def}}}$, so the entire deficit is covered immediately.
+Therefore the insurance fund (or deficit buffer) reaches the safety level $\delta$ after the same round, yielding $\tau_{\mathrm{solv}}=\tau_{\mathrm{def}}+1$.
+\end{proof}
+
+\noindent This result states that if the no-wait condition is enforced, BLPs will inject liquidity such that the solvency time is minimized.
+In theory, an exchange can use some of its future revenue or profits (\eg~via token issuance) to enforce the no-wait constraint.
+\iparagraph{Proof of Proposition~\ref{prop:no-wait}}
+\begin{proof}
+Let $U(\tau, q) = \beta^{\tau-t} q (\theta_{\tau} - \kappa_{\tau})$ be the discounted utility of a BLP who provides liquidity $q$ at time $\tau \ge t$.
+Here, $\theta_{\tau}$ represents the payment per unit of liquidity (derived from the ADL severity) and $\kappa_{\tau}$ represents the cost per unit (liquidity premium).
+The BLP solves the optimal stopping problem (see, \eg~\cite{Peskir2006}):
+\[
+\max_{\tau \ge t, q \in [0, D_t]} \Expect_t\left[ U(\tau, q) \right].
+\]
+This objective captures the trade-off between acting immediately to capture the current spread versus waiting for potentially higher future premiums, discounted by the time cost of delay.
+Assuming the BLP is risk-neutral and has capacity $q=D_t$, the condition for immediate stopping at $\tau=t$ is that the immediate payoff exceeds the expected discounted future value:
+\[
+D_t (\theta_t - \kappa_t) \;\ge\; \beta \Expect_t[ V_{t+1}(D_{t+1}) ],
+\]
+where $V_{t+1}(D_{t+1}) = \max_{\tau \ge t+1, q \in [0, D_{t+1}]} \Expect_{t+1}[U(\tau, q)]$ is the value function from $t+1$ onwards.
+Substituting the per-unit surplus $\delta_t = \theta_t - \kappa_t$ and rearranging gives the condition:
+\[
+\theta_t D_t \;\ge\; \Gamma_t + \beta \Expect_t[ V_{t+1}(D_{t+1}) ].
+\]
+In the simplified case where the BLP compares acting now vs. acting at $t+\Delta t$, and assuming capacity constraints are non-binding, the condition reduces to comparing marginal costs.
+Specifically, if the cost of waiting is strictly positive (due to discounting $\beta < 1$ or decreasing surplus $\delta_{t+\Delta t} < \delta_t$), then the optimal strategy is to act immediately.
+If, however, $\theta_t$ decays rapidly such that $\theta_t D_t > \Expect[\theta_{t+\Delta t} D_{t+\Delta t}]$, but the premium $\Gamma_t$ makes immediate action costly, the inequality flips.
+Rearranging the condition in the proposition statement:
+\[
+\theta_t D_t + \Gamma_t \le \Expect_t[\theta_{t+\Delta t} D_{t+\Delta t}]
+\]
+implies that the future expected payout (even after discounting) is higher than the current payout net of costs, incentivizing delay.
+Thus, to enforce no-wait, the exchange must ensure the reverse inequality holds.
+\end{proof}

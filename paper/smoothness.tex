@@ -1,0 +1,164 @@
+\section{Price of Anarchy Phase Transitions}
+\label{app:smoothness-poa}
+
+We characterize the efficiency gap between static (Nash) and dynamic (Stackelberg) ADL policies via Price of Anarchy (PoA) phase transitions.
+We analyze two distinct welfare objectives: \emph{Fairness} (minimizing haircuts to winners) and \emph{Revenue} (maximizing exchange value).
+In both cases, we find a sharp transition from a bounded regime, where static policies are constant-factor optimal, to an unbounded regime, where dynamic control is strictly necessary.
+Throughout, we work with the terminal book $\mathcal{P}_n$ of size $n$ as $n\to\infty$.
+
+\subsection{Fairness Phase Transition}
+
+We first analyze fairness using the Profitability-to-Total-Solvency Ratio (PTSR), which measures the survival rate of winner equity relative to the total deficit covered.
+
+\subsubsection{Welfare and Assumptions}
+
+\iparagraph{Fairness welfare.}
+We define the fairness welfare of a policy $\pi$ as its expected PTSR:
+\[
+  W_{\mathrm{Fair}}(\pi) \;:=\; \Expect\left[ \frac{\omega_T^\pi}{D_T^\pi} \right].
+\]
+This metric captures the efficiency of haircuts: higher values imply that the policy covers deficits $D_T^\pi$ while preserving maximal winner equity $\omega_T^\pi$.
+Extreme-value scaling implies $W_{\mathrm{Fair}}$ scales inversely with the severity load.
+
+\iparagraph{Price of anarchy.}
+We compare the welfare of a static policy $\pi^{\mathrm{stat}}$ (simultaneous move) against the optimal dynamic Stackelberg policy $\pi^{\star}$. The Price of Anarchy is defined as the ratio:
+\[
+  \mathrm{PoA}_{\mathrm{Fair}} \;:=\; \frac{W_{\mathrm{Fair}}(\pi^{\star})}{W_{\mathrm{Fair}}(\pi^{\mathrm{stat}})}.
+\]
+
+We require the following regularity assumptions.
+\emph{LLN and EV Scaling (Prop.~\ref{ass:lln-ev})} establish the baseline scales for deficits ($O(n)$) and equity ($O(b_n)$).
+\emph{Anti-concentration (Prop.~\ref{ass:anti-conc})} ensures that $b_n \ll n$, creating the scarcity of winner equity that drives the phase transition.
+
+\begin{proposition}[LLN and EV scaling]
+  \label{ass:lln-ev}
+  The number of winners $k_n$ and losers $m_n$ satisfy $k_n, m_n \asymp n$.
+  Winner equity and loser deficits satisfy extreme-value limits with scales $b_n := b^+_{k_n}$ and $b^-_{m_n}$.
+\end{proposition}
+
+\begin{proposition}[Anti-concentration]
+  \label{ass:anti-conc}
+  (i) \emph{Equity:} The top winner is not dominant: $b_n = o(n)$.
+  (ii) \emph{Leverage:} Max leverage scales with average leverage: $\max_i \lambda_{i,T}^\pm \le C \ell^\pm_n / n$.
+  (iii) \emph{Balance:} Winner and loser leverage masses are comparable: $\ell^+_n \asymp \ell^-_n$.
+\end{proposition}
+
+\subsubsection{Phase Transition}
+
+The efficiency of static ADL depends on the \emph{load} $\kappa_n = \theta_n n / b_n$, which measures the severity intensity relative to the tail of the winner distribution.
+
+\begin{theorem}[Fairness PoA Phase Transition]
+  \label{thm:poa-phase}
+  Suppose Assumptions~\ref{ass:lln-ev}--\ref{ass:anti-conc} hold.
+  Let $\pi^{\star}$ be the optimal dynamic policy and $\pi^{\mathrm{stat}}$ be any static policy with load $\kappa_n^{\mathrm{stat}}$.
+  
+  \begin{enumerate}
+    \item \emph{Bounded Regime (Low Load):}
+      If $\sup_n \kappa_n^{\mathrm{stat}} < \infty$, then static ADL is constant-factor optimal:
+      \[
+        \limsup_{n\to\infty} \mathrm{PoA}_{\mathrm{Fair}} \;\le\; C < \infty.
+      \]
+      
+    \item \emph{Unbounded Regime (High Load):}
+      If $\kappa_n^{\mathrm{stat}} \to \infty$ (e.g., due to heavy tails or fixed severity with $b_n = o(n)$), then the Price of Anarchy diverges:
+      \[
+        \mathrm{PoA}_{\mathrm{Fair}} \;\asymp\; \kappa_n^{\mathrm{stat}} \;\to\; \infty.
+      \]
+  \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+  We prove the result by establishing the scaling limits of the dynamic benchmark, the static cost, and their asymptotic ratio.
+  
+  First, for the dynamic benchmark, the optimal Stackelberg policy $\pi^\star$ minimizes haircuts ex-post to cover the realized deficit $D_T \asymp n$.
+  By targeting the haircut to preserve the top winner's equity $\omega_T \asymp b_n$, the dynamic policy achieves a Profitability-to-Total-Solvency Ratio (PTSR) that concentrates around a constant, $W_{\mathrm{Fair}}(\pi^\star) \asymp 1$ (Theorem~\ref{thm:ev-main}).
+  This is possible because the controller can observe the realization of heavy-tailed variates and adjust the severity $\theta$ precisely to the minimal necessary level.
+
+  Second, for the static policy, the severity $\theta_n$ is fixed ex-ante and applies a uniform pressure $\theta_n n$ on the book, which must be absorbed by individual winners with capacity scaling as $b_n$.
+  Under heavy-tailed scaling, Proposition~\ref{prop:ev-impossibility} shows that this mismatch leads to a welfare decay $W_{\mathrm{Fair}}(\pi) \asymp b_n / (\theta_n n) = 1/\kappa_n$, as the policy blindly destroys small winners or fails to extract sufficient capital from the tail without excessive rates.
+  Crucially, as $n \to \infty$, the gap between the aggregate load $O(n)$ and individual capacity $O(b_n)$ widens (since $b_n = o(n)$), forcing $\kappa_n$ to grow if $\theta_n$ does not vanish rapidly enough.
+
+  Finally, combining these estimates yields the Price of Anarchy $\mathrm{PoA}_{\mathrm{Fair}} \asymp 1 / (1/\kappa_n^{\mathrm{stat}}) = \kappa_n^{\mathrm{stat}}$.
+  In the bounded regime ($\kappa_n^{\mathrm{stat}} = O(1)$), the ratio is constant, but in the unbounded regime ($\kappa_n^{\mathrm{stat}} \to \infty$), the efficiency of the static policy collapses relative to the dynamic optimum, proving the divergence.
+\end{proof}
+
+\begin{example}[Light-tailed Failure]
+  \label{ex:light-tailed-unbounded-poa}
+  If winner equities are sub-Gaussian ($b_n \asymp \sqrt{\log n}$) but the exchange uses fixed severity $\theta > 0$, then $\kappa_n^{\mathrm{stat}} \asymp n / \sqrt{\log n} \to \infty$.
+  Static ADL unnecessarily destroys winner equity compared to a dynamic policy that scales $\theta \sim 1/n$, leading to infinite PoA.
+\end{example}
+
+\subsection{Revenue Phase Transition}
+\label{app:revenue-phase-transition}
+
+We now extend the analysis to the \emph{Revenue} objective, formalizing the trade-off between solvency and capital efficiency (LTV).
+
+\subsubsection{Joint Welfare}
+
+\iparagraph{Solvency-revenue welfare.}
+We define the joint welfare $W_{\mathrm{Rev}}(\pi)$ as the risk-adjusted LTV, penalizing insolvency $R_T$ with weight $\lambda > 1$:
+\[
+  W_{\mathrm{Rev}}(\pi) \;:=\; \Expect\left[ \mathrm{LTV}_T(\pi) - \lambda \cdot R_T(\pi) \right].
+\]
+The tension arises from provisioning: Dynamic policies provision for the \emph{average} deficit, while static policies must provision for the \emph{tail} to ensure solvency.
+
+\subsubsection{Phase Transition}
+
+\begin{proposition}[Revenue PoA Phase Transition]
+  \label{prop:ltv-poa}
+  Suppose deficits have heavy tails with index $\alpha \in (1, 2)$ (infinite variance) and the exchange operates in the structural deficit regime ($\mu_- > \mu_{\Phi}$).
+  Let $W_{\mathrm{Rev}}^\star = \sup_\pi W_{\mathrm{Rev}}(\pi)$.
+  
+  \begin{enumerate}
+      \item \emph{Bounded Regime (Light Tails):}
+      If deficits are light-tailed, static policies that provision for the mean are efficient:
+      \[
+        \mathrm{PoA}_{\mathrm{Rev}} \;:=\; \frac{W_{\mathrm{Rev}}^\star}{W_{\mathrm{Rev}}(\pi^{\mathrm{stat}})} \;\le\; C < \infty.
+      \]
+      
+      \item \emph{Unbounded Regime (Heavy Tails):}
+      If deficits are heavy-tailed ($\alpha < 2$), any static policy $\pi^{\mathrm{stat}}$ satisfying solvency condition \textbf{(S)} diverges:
+      \[
+        \mathrm{PoA}_{\mathrm{Rev}} \;\to\; \infty.
+      \]
+  \end{enumerate}
+\end{proposition}
+
+\begin{proof}
+  We establish the result by comparing the linear scaling of dynamic welfare with the sub-linear or negative welfare of static policies under heavy tails.
+  
+  First, the optimal dynamic policy $\pi^\star$ operates as a regulator that clears the market based on realized deficits, diverting fees $\Phi_T$ only as strictly needed to cover $D_T$.
+  By the Law of Large Numbers, both $\Phi_T$ and $D_T$ scale linearly with $n$, yielding an expected welfare $W_{\mathrm{Rev}}^\star \asymp n(\mu_\Phi - \mu_-)$ that is positive and proportional to market size.
+
+  Second, a static policy is parameterized by a fixed fee diversion rate $\delta \in [0,1]$ chosen ex-ante, meaning it diverts a constant fraction of fees $\mathcal{D}_t = \delta \phi_t$ (where $\Phi_T = \sum \phi_t$ follows the scaling in Assumption~\ref{ass:lln-evt-trilemma}) to the insurance fund.
+  To build a fund $K_t$ capable of absorbing heavy-tailed shocks with infinite variance ($\alpha < 2$),
+  Standard ruin theory~\citep{AsmussenAlbrecher2010,Embrechts1997} implies that to ensure Solvency Condition \textbf{(S)} (Definition~\ref{def:solvency-formal}) against the maximum jump $\Delta_T \sim n^{1/\alpha}$, the policy must essentially set $\delta \to 1$ to handle the timing mismatch where large shocks occur before the fund accumulates.
+  Any policy that attempts to maintain $\delta < 1$ will fail solvency with probability approaching 1, while a policy with $\delta \approx 1$ consumes the entire revenue stream, driving $W_{\mathrm{Rev}}(\pi^{\mathrm{stat}}) \to 0$ or into negative territory due to insolvency penalties.
+
+  Finally, the Price of Anarchy is the ratio of the linear dynamic payoff to the vanishing static payoff: $\mathrm{PoA}_{\mathrm{Rev}} \asymp n / o(n) \to \infty$.
+  This divergence confirms that in the heavy-tailed regime, the information advantage of the dynamic controller (\ie~knowing exactly when to divert funds) is infinitely valuable compared to a static rule.
+\end{proof}
+
+\subsection{The Aggregation Paradox}
+
+We conclude by observing that the divergence of PoA depends on how objectives are aggregated.
+
+\begin{proposition}[Sum vs. Min Aggregation]
+  Let the normalized combined objectives be
+  \[
+    W_{\Sigma} = W_{\mathrm{Fair}} + W_{\mathrm{Rev}},
+    \qquad
+    W_{\min} = \min(W_{\mathrm{Fair}}, W_{\mathrm{Rev}}).
+  \]
+  \begin{enumerate}
+      \item \emph{Sum-Welfare is Bounded.} A static policy can always choose to satisfy one objective fully, achieving at least half the optimal total score; consequently
+      \[
+        \mathrm{PoA}_{\Sigma} \le 2.
+      \]
+      \item \emph{Min-Welfare is Unbounded.} In the heavy-tailed regime, static policies face the ADL Trilemma and must drive at least one objective to zero, while dynamic policies maintain both, so
+      \[
+        \mathrm{PoA}_{\min} \to \infty.
+      \]
+  \end{enumerate}
+\end{proposition}
+This implies that static ADL is sufficient if objectives are substitutes, but catastrophically inefficient if they are complements (i.e., if the exchange requires \emph{both} fairness and revenue to survive).

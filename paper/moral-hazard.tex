@@ -1,0 +1,150 @@
+\section{Moral Hazard Results}\label{app:proofs}
+ 
+\subsection{Queue maximizes top‑winner damage: formal proofs and gaps}\label{app:queue-vs-pr-top}
+
+\iparagraph{Setup.}
+Fix a time \(T\).
+Let winners' equities be sorted \(e_{(1)}\ge e_{(2)}\ge\cdots\ge e_{(k)}>0\) and denote \(W_T=\sum_{i=1}^k e_{(i)}\).
+A budget‑balanced ADL policy chooses haircuts \(h_i\in[0,1]\) with total haircut mass
+\[
+\sum_{i=1}^k h_i e_{(i)} \;=\; H \;=\; \theta_\pi D_T,
+\]
+and produces post‑haircut survivors \(z_i=(1-h_i)e_{(i)}\).
+Let \(\Delta_T\) be the largest loser shortfall at the shock.
+
+\iparagraph{Queue minimizes the top survivor.}
+\begin{lemma}\label{lem:queue-min-top}
+For any feasible haircut vector \(h\), the top‑winner survivor satisfies
+\[
+e^{\mathrm{post}}_{(1)} \;=\; (1-h_1)e_{(1)} \;\ge\; \max\{e_{(1)}-H,\,0\}.
+\]
+Equality is attained by the queue rule:
+if \(H\le e_{(1)}\), set \(h_1=H/e_{(1)}\) and \(h_i=0\) for \(i>1\);
+if \(H>e_{(1)}\), set \(h_1=1\) and continue greedily on \(i=2,3,\dots\).
+\end{lemma}
+\begin{proof}
+Since \(h_i\ge 0\), we have \(h_1 e_{(1)} \le \sum_{i=1}^k h_i e_{(i)} = H\).
+Thus \((1-h_1)e_{(1)} \ge e_{(1)}-H\), and the nonnegativity of survivors gives the max with \(0\).
+The queue construction achieves this bound by allocating as much of \(H\) as possible to the top account before touching others.
+\end{proof}
+
+\iparagraph{Top‑winner PTSR/PMR extremality.}
+\begin{proposition}\label{prop:top-ptsr-pmr}
+Define the top‑winner ratios
+\[
+\mathrm{PTSR}^{\mathrm{top}}_T \;=\; \frac{e^{\mathrm{post}}_{(1)}}{D_T},
+\qquad
+\mathrm{PMR}^{\mathrm{top}}_T \;=\; \frac{e^{\mathrm{post}}_{(1)}}{\Delta_T}.
+\]
+Among all budget‑balanced haircut vectors with total budget \(H=\theta_\pi D_T\), the queue rule minimizes \(\mathrm{PTSR}^{\mathrm{top}}_T\) and \(\mathrm{PMR}^{\mathrm{top}}_T\).
+\end{proposition}
+\begin{proof}
+Immediate from Lemma~\ref{lem:queue-min-top} by dividing through by the positive constants \(D_T\) and \(\Delta_T\).
+\end{proof}
+
+\iparagraph{Gap versus pro‑rata.}
+\begin{proposition}\label{prop:gap-pr-vs-queue}
+Let \(H\le e_{(1)}\) and consider the pro‑rata rule \(h_i^{\mathrm{PR}}=H/W_T\).
+Then
+\[
+e^{\mathrm{post,PR}}_{(1)} - e^{\mathrm{post,Queue}}_{(1)}
+\;=\; H\Big(1-\frac{e_{(1)}}{W_T}\Big)\;\;>\;0\quad\text{whenever}\quad e_{(1)}<W_T.
+\]
+Consequently,
+\[
+\mathrm{PTSR}^{\mathrm{top}}_{\mathrm{PR}} - \mathrm{PTSR}^{\mathrm{top}}_{\mathrm{Queue}}
+\;=\; \frac{H}{D_T}\Big(1-\frac{e_{(1)}}{W_T}\Big)
+\;=\; \theta_\pi\Big(1-\frac{e_{(1)}}{W_T}\Big),
+\]
+and
+\[
+\mathrm{PMR}^{\mathrm{top}}_{\mathrm{PR}} - \mathrm{PMR}^{\mathrm{top}}_{\mathrm{Queue}}
+\;=\; \frac{H}{\Delta_T}\Big(1-\frac{e_{(1)}}{W_T}\Big).
+\]
+If \(H>e_{(1)}\), replace \(e^{\mathrm{post,Queue}}_{(1)}\) by \(0\), yielding
+\(
+e^{\mathrm{post,PR}}_{(1)} - 0 = \big(1-\tfrac{H}{W_T}\big)e_{(1)}
+\)
+and the corresponding ratio gaps.
+\end{proposition}
+\begin{proof}
+Under pro‑rata, \(e^{\mathrm{post,PR}}_{(1)} = (1-H/W_T)e_{(1)}\).
+Under queue with \(H\le e_{(1)}\), \(e^{\mathrm{post,Queue}}_{(1)}=e_{(1)}-H\).
+Subtract and simplify to obtain the display; dividing by \(D_T\) (resp.\ \(\Delta_T\)) yields the ratio gaps.
+The \(H>e_{(1)}\) case follows since the queue fully exhausts the top account.
+\end{proof}
+
+\iparagraph{Discussion.}
+Propositions~\ref{prop:top-ptsr-pmr}–\ref{prop:gap-pr-vs-queue} formalize the intuition that queueing concentrates the burden on the most profitable account, while proportional rules preserve the top winner to the greatest extent compatible with budget balance.
+The explicit gap scales linearly with the budget \(H\) and with the complement of the top‑winner share \(1-e_{(1)}/W_T\), making the amplification with concentration transparent.
+
+Lemma~\ref{lem:queue-min-top} shows that queue greedily allocates the entire haircut budget to the largest winner, thereby minimizing the post‑ADL survivor \(\omega_T^\pi\) among all feasible allocations when \(H\le e_{(1)}\).
+Proposition~\ref{prop:top-ptsr-pmr} converts this extremal survivor property into the PTSR/PMR statements by normalizing with \(D_T\) and \(\Delta_T\), while Proposition~\ref{prop:gap-pr-vs-queue} quantifies the strict gap relative to pro‑rata.
+Together these statements exactly recover the inequalities in Proposition~\ref{prop:queue-worst-top-informal}, completing the proof.
+\subsection{LLN/EVT regime and scaling proofs}\label{app:lln-evt}
+We assume triangular arrays with regularly varying right/left tails (indices $\alpha_+,\alpha_-\in(0,2]$) and slowly varying factors.
+The winner/loser counts satisfy $k_n,m_n=\Theta(n)$, and the extreme-value scales coincide with the upper-quantile normalizers \eqref{eq:quantile-scales}: $b_{k_n}^+=F_+^{\leftarrow}(1-1/k_n)$ and $b_{m_n}^-=F_-^{\leftarrow}(1-1/m_n)$.
+Under mild mixing, these tails deliver the LLN/EV limits \eqref{eq:lln-scaling}--\eqref{eq:ev-scaling}.
+Theorem~\ref{thm:master-ptsr} follows by bounding $\omega_T^\pi$ between the maximum survivor and its capped reverse‑waterfilling counterpart and applying bounded convergence for expectations.
+
+\subsection{Finite‑sample bounds for PTSR}\label{app:finite-sample}
+Under Pareto$(\alpha_+)$ winners (or subexponential right tails), quantile bounds and maximal inequalities imply that, with probability $\ge 1-\delta$, $\omega_T\in[c_-(\alpha_+,\delta)\,b_{k_n}^+,c_+(\alpha_+,\delta)\,b_{k_n}^+]$ and $D_T\in[\underline\mu(\delta)\,n,\overline\mu(\delta)\,n]$.
+Combining with the reverse‑waterfilling sandwich yields the finite‑sample display in \S\ref{thm:master-ptsr}.
+Constants follow from standard EVT quantile approximations (Leadbetter–Lindgren–Rootzén; Resnick; Embrechts–Klüppelberg–Mikosch).
+
+\subsection{Leverage anti‑concentration}\label{app:anti-conc}
+Assume $\max_i L_i^-/\ell_n^-\to 0$ and that the loss tail is subexponential/regularly varying.
+Then $\Delta_T$ scales as $(\ell_n^-/n)\,b_{m_n}^-$ up to constants.
+Counterexamples: a single loser carrying $\Theta(\ell_n^-)$ leverage breaks the scaling.
+
+\begin{theorem}[Master theorem: PTSR scaling]\label{thm:master-ptsr}\label{thm:ev-main}
+    Fix $T$ and state $\mathcal P_n$. Let $W_T=\sum(e_T)_+$, $D_T=\sum(-e_T)_+$, and $\omega_T=\max(e_T)_+$. Assume the LLN/EVT regime of \S2--\S3: $W_T/n\xrightarrow{p}\mu_+$, $D_T/n\xrightarrow{p}\mu_-$, and $\omega_T/b_{k_n}^+\xrightarrow{p}c_+$, with $k_n=\Theta(n)$ and $b_{k_n}^+$ the winner--side extreme--value scale.
+    Let $\pi$ be any one--round ADL policy satisfying (6)--(7) with severity $H=\theta_n D_T$.
+    With high probability,
+    \[
+    \frac{c_+}{\mu_-}\,\frac{b_{k_n}^+}{\theta_n n}\,(1-o(1))
+    \ \ \le\ \ \frac{\omega_T^\pi}{D_T^\pi}\ \ \le\ \ \frac{1}{\mu_-}\,\frac{b_{k_n}^+}{\theta_n n}\,(1+o(1)).
+    \]
+    Thus $\mathsf{PTSR}_T(\mathcal P_n,\pi) = \Theta(b_{k_n}^+/(\theta_n n))$.
+    Finite-sample bounds follow from standard EVT concentration inequalities (e.g., \cite{Embrechts1997}).
+    \end{theorem}
+    
+    \begin{proof}
+    Budget balance implies $D_T^\pi=\theta_n D_T = \theta_n \mu_- n(1+o_p(1))$.
+    For any rule, $\omega_T^\pi\le \omega_T$. Under standard capped reverse--waterfilling (13)--(14), if $H=O(b_{k_n}^+)\ll W_T=\Theta(n)$, the maximum survivor is preserved: $\omega_T^\pi\ge (1-o_p(1))\omega_T$.
+    The ratio scales as $\omega_T/(\theta_n D_T) = \Theta_p(b_{k_n}^+/(\theta_n n))$.
+    Bounded convergence extends this to expectations.
+    \end{proof}
+    
+    \begin{corollary}[PTSR decay]\label{cor:A-ptsr}
+    Under Theorem~\ref{thm:master-ptsr}, if $\theta_n n/b_{k_n}^+\to\infty$, then $\mathsf{PTSR}\to 0$. Conversely, choosing $\theta_n=C\,b_{k_n}^+/n$ maintains $\mathsf{PTSR}$ at a nonzero constant $c_+/(C\mu_-)$.
+    \end{corollary}
+    
+    \begin{corollary}[PMR scaling]\label{cor:B-pmr}
+    Under LLN/EVT and leverage anti--concentration ($\Delta_T \asymp (\ell_n^-/n) b_{m_n}^-$),
+    \[
+    \mathsf{PMR}_T(\mathcal P_n,\pi)\ =\ \Theta\!\Big(\frac{n}{\ell_n^-}\Big)\cdot \frac{b_{k_n}^+}{b_{m_n}^-}\cdot \frac{1}{\theta_n}.
+    \]
+    If tails are comparable ($b_{m_n}^-\asymp b_{k_n}^+$), $\mathsf{PMR} \asymp (n/\ell_n^-)/\theta_n$.
+    Thus PMR is small when severity is large or loser leverage per trader is high.
+    \end{corollary}
+    
+    \begin{corollary}[Policy ordering]\label{cor:C-policy-order}
+    Fix $H=\theta_n D_T \le W_{-1}$. Among fair winner allocators (anonymity, scale invariance, monotonicity), capped reverse--waterfilling maximizes $\omega_T^\pi$ and thus maximizes both PTSR and PMR. Top--first queues minimize $\omega_T^\pi$ and these ratios.
+    \end{corollary}
+    
+    \subsection{Randomized constructions for moral-hazard examples}\label{app:mh-example}
+    
+    \paragraph{Extreme-value moral-hazard (principal–agent).}
+    Fix $\rho\in(0,1)$ and $k_n=\lfloor \rho n\rfloor$. Draw winner equities $Y_i^{(n)}$ i.i.d.\ Pareto$(\alpha_+)$ and loser equities $X_i^{(n)}$ with mean $\mu$.
+    Then $M_n^+=\max Y_i^{(n)} \asymp n^{1/\alpha_+}$ while non-max winners sum to $o(M_n^+)$.
+    Losers sum to $D_T \approx \mu n$.
+    For fixed severity $\theta_n \equiv \bar\theta$, the haircut $H_n \approx \bar\theta \mu n$ exceeds the capacity of non-max winners, forcing the top winner to cover the bulk.
+    Post-ADL equity is $(M_n^+ - \bar\theta \mu n)_+ \to 0$ since $n^{1/\alpha_+} \ll n$ for $\alpha_+ < 1$.
+    
+    \paragraph{Leverage-imbalance construction.}\label{app:mh-leverage}
+    Fix leverage masses $\ell_n^- \gg \ell_n^+$. Draw loser equities $X_i^{(n)}$ i.i.d.\ Pareto$(\alpha_-)$, so $D_T \approx M_n^- \asymp n^{1/\alpha_-}$.
+    Assign winner leverage $c\,\ell_n^+$ to a random index $I_n$ and distribute the rest evenly.
+    Then $\omega_n \asymp (\ell_n^+/\ell_n^-) n$.
+    This satisfies Proposition~\ref{prop:excessive-leverage} assumptions, yielding the claimed threshold.
+    

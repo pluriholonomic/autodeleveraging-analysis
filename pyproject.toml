@@ -1,0 +1,68 @@
+[project]
+name = "autodeleveraging-analysis"
+version = "0.1.0"
+description = "Reproducible analysis of Hyperliquid ADL events (Oct 10-11, 2025)"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Tarun Chitra"},
+    {name = "Victor Xu"},
+    {name = "Nagu Thogiti"},
+    {name = "Mauricio Trujillo"},
+]
+keywords = ["defi", "liquidation", "adl", "hyperliquid", "research", "perpetuals"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Office/Business :: Financial",
+]
+dependencies = ["numpy>=1.24", "pandas>=2.0", "matplotlib>=3.7", "tqdm>=4.66"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.14"]
+
+[project.scripts]
+oss-adl = "oss_adl.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/pluriholonomic/autodeleveraging-analysis"
+Documentation = "https://github.com/pluriholonomic/autodeleveraging-analysis#readme"
+Repository = "https://github.com/pluriholonomic/autodeleveraging-analysis"
+Issues = "https://github.com/pluriholonomic/autodeleveraging-analysis/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.uv]
+package = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = [
+    "E402",  # Module level import not at top (we use docstrings first)
+    "E501",  # Line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.14.13",
+]

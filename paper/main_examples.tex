@@ -1,0 +1,46 @@
+
+\subsection{Examples of Risk-Aware Pro-Rata (RAP) and Next Deficit}\label{app:rap-examples}
+
+In this section, we provide detailed numerical examples illustrating the properties of the RAP rule and the impact of post-haircut shocks.
+
+\iparagraph{RAP weighting example.}
+We illustrate the three choices of risk models on an example at $T=2$ where the winners are $\mathcal W_2=\{A,C,E\}$ with effective leverages $\lambda^+_{A,2}\approx 1.031$, $\lambda^+_{C,2}\approx 0.925$, and $\lambda^+_{E,2}\approx 1.548$.
+Recall that under pro-rata, the normalized shares are $s^{\mathrm{PR}}_i \propto e_{T,i}$, yielding $(s^{\mathrm{PR}}_A, s^{\mathrm{PR}}_C, s^{\mathrm{PR}}_E) \approx (0.163, 0.728, 0.109)$.
+For RAP with $w_i=\lambda_i g(\lambda_i)$, the shares allocate proportional to $e_{T,i}w_i$.
+The resulting shares (order $A,C,E$) are:
+\begin{itemize}
+    \item \textbf{Linear} $g(\lambda)=\lambda$: $\approx (0.164, 0.589, 0.246)$.
+    \item \textbf{Power} $g(\lambda)=\lambda^2$: $\approx (0.155, 0.498, 0.348)$.
+    \item \textbf{CVaR} $g(\lambda)=(\lambda-0.9)_+$: $\approx (0.149, 0.114, 0.737)$.
+\end{itemize}
+RAP shifts haircut mass toward high-leverage winners; the tilt is mild for linear $g$, stronger for $\lambda^2$, and concentrates almost entirely on the over-threshold tail for the CVaR model.
+
+\iparagraph{Next deficit and leverage sensitivity.}
+Consider the setup where $T=2$ with $D_T \approx 0.705$ and $W_T \approx 7.72$.
+Under the normal pro-rata rule, the haircut rate is $h^{\mathrm{PR}}_T \approx 0.0913$.
+We consider a simple Markovian shock whose direction is uniformly random and whose magnitude grows with the winner leverage mass:
+\[
+Z_{T,i} = \xi_T \zeta_T, \quad \xi_T \in \{-1,+1\} \text{ equiprobable}, \quad \zeta_T = \alpha \frac{\ell^+_T}{k_T}.
+\]
+With $\alpha=1.2$, the expected next deficit is:
+\[
+\Expect[D^{\mathrm{next}}_{T+1} \mid \mathcal F_T] \approx 1.46 > D_T.
+\]
+This illustrates a failure mode for pro-rata when the shock kernel scales strongly with leverage: pro-rata shrinks all winners uniformly and leaves effective leverages $\lambda_{T,i}$ unchanged, so the shock magnitude $\zeta_T$ is unaffected while residual exposure remains large on high-leverage winners.
+
+\iparagraph{Correlated shocks example.}
+Consider two winners with equal equity $e$ and leverage levels $\lambda_{t,1}>\lambda_{t,2}\ge 1$, and budget $b_t=2\varepsilon e$.
+Assume price shocks are AR(1): $Z_{t+2}=\rho Z_{t+1}+\varepsilon_{t+2}$, $\rho\in(0,1)$.
+RAP with $w_{t,i} \propto \lambda_{t,i}\psi(1/\lambda_{t,i})$ puts more haircut mass on account 1 (the higher leverage account).
+Assume account 1's exposure to $Z_{t+1}$ offsets the loss term (a "hedge") in the next step deficit: $D^{\text{next}}_{t+1}=(\alpha-\beta s_{t,1})Z_{t+1}$.
+Shrinking $s_{t,1}$ (winner 1's residual equity) weakens the hedge into $t+2$.
+Since $s^{\mathrm{RAP}}_{t,1} < s^{\mathrm{PR}}_{t,1}$, the two-step sum of deficits $S_t$ can satisfy $S_t(h^{\mathrm{PR}}_t) < S_t(h^{\mathrm{RAP}}_t)$, even if RAP minimizes the one-step deficit.
+
+\iparagraph{Exchange incentive compatibility example.}
+Consider two positions $\mathfrak{p}_A$ (high value, $\theta_A=100$) and $\mathfrak{p}_B$ (low value, $\theta_B=5$) with equal initial leverage $\ell=1$.
+Suppose the exchange must reduce total leverage by 1 unit.
+\begin{itemize}
+    \item \textbf{RAP (Targeted):} Fully liquidates $\mathfrak{p}_A$. Continuation value: $5\beta$.
+    \item \textbf{Pro-Rata:} Reduces both by 50\%. Continuation value: $52.5\beta$.
+\end{itemize}
+Pro-rata yields significantly higher utility by preserving the high-value trader, demonstrating that RAP need not be incentive compatible for the exchange.

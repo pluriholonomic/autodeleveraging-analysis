@@ -1,0 +1,198 @@
+\section{Formal Proof of the ADL Trilemma}\label{app:adl-trilemma-proof}
+
+In this appendix, we provide a complete formal statement and proof of the ADL Trilemma (Proposition~\ref{prop:adl-trilemma}).
+The proof assembles results from Appendices~\ref{app:proofs}--\ref{app:smoothness-poa}, demonstrating that the three-way tension between solvency, fairness, and revenue is a fundamental structural constraint under heavy-tailed shortfalls.
+
+\paragraph{Formal Setup and Definitions.}
+We work in the large-market limit $n\to\infty$ under the standard assumptions established in \S\ref{sec:risk-prelim} and Appendix~\ref{app:proofs}.
+
+\iparagraph{Book and Policy Sequences.}
+Consider a sequence of perpetuals exchanges $(\mathcal{P}_n)_{n\ge 1}$ with $n$ positions at terminal time $T$.
+Let $\mathcal{W}_T$ and $\mathcal{L}_T$ denote the winner and loser index sets with cardinalities $k_n = |\mathcal{W}_T|$ and $m_n = |\mathcal{L}_T|$.
+We assume throughout that $k_n, m_n = \Theta(n)$.
+We further assume the initial insurance fund capital $K_0$ satisfies $K_0 = o(n)$, ensuring that solvency depends on flow mechanics rather than initial endowment.
+A static ADL policy $\pi_n$ is characterized by:
+\begin{itemize}
+    \item A severity parameter $\theta_n \in [0,1]$ determining the fraction of deficit socialized;
+    \item An allocation rule $h_n : \reals^{k_n}_+ \to [0,1]^{k_n}$ distributing haircuts across winners;
+    \item Insurance parameters determining the diversion of fees into the insurance fund.
+\end{itemize}
+
+\iparagraph{Distributional Assumptions.}
+We impose the following standard assumptions from Appendix~\ref{app:proofs}:
+
+\begin{assumption}[Regular Variation]\label{ass:rv-trilemma}
+The right tails of the winner equity distribution $\bar F_+(x)$ and loser shortfall distribution $\bar F_-(x)$ are regularly varying with indices $\alpha_+ > 0$ and $\alpha_- > 0$, respectively:
+\[
+    \bar F_\pm(x) = L_\pm(x) x^{-\alpha_\pm},
+\]
+where $L_\pm$ are slowly varying functions.
+\end{assumption}
+
+\begin{assumption}[LLN and EVT Scaling]\label{ass:lln-evt-trilemma}
+The following scaling limits hold:
+\begin{enumerate}
+    \item \emph{Aggregates:} $W_T/n \xrightarrow{p} \mu_+$, $D_T/n \xrightarrow{p} \mu_-$, and total fees $\Phi_T/n \xrightarrow{p} \mu_{\Phi}$ for constants $\mu_\pm, \mu_{\Phi} \in (0,\infty)$.
+    \item \emph{Extremes:} The maximum winner equity $\omega_T$ and maximum loser shortfall $\Delta_T$ satisfy
+    \[
+        \frac{\omega_T}{b_{k_n}^+} \xrightarrow{p} c_+, \qquad \frac{\Delta_T}{b_{m_n}^-} \xrightarrow{p} c_-,
+    \]
+    where $b_k^\pm = F_\pm^{-1}(1-1/k)$ are the extreme-value scales.
+\end{enumerate}
+We abbreviate $b_n := b_{k_n}^+$.
+\end{assumption}
+
+\begin{assumption}[Structural Deficit Regime]\label{ass:structural-deficit}
+We assume the exchange operates in a regime where insurance alone is insufficient to cover tail risks. Specifically, the expected deficit rate exceeds the maximum sustainable fee diversion rate: $\mu_- > \mu_{\Phi}$.
+This ensures that the Solvency constraint cannot be trivially satisfied by insurance without impacting LTV or requiring haircuts.
+\end{assumption}
+
+\iparagraph{Formal Desiderata.}
+We now define the three desiderata precisely:
+
+\begin{definition}[Solvency]\label{def:solvency-formal}
+A policy family $(\pi_n)$ satisfies the \emph{solvency} condition \textbf{(S)} if:
+\begin{enumerate}
+    \item[(S1)] \emph{Bounded cumulative residual:} $\sum_{t=1}^T R_t(\pi_n) = O_p(1)$ as $n\to\infty$;
+    \item[(S2)] \emph{Controlled breach probability:} $\sup_{n,t} \Prob\!\left[R_t(\pi_n) > 0\right] < 1$.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Fairness / Bounded Moral Hazard]\label{def:fairness-formal}
+A policy family $(\pi_n)$ satisfies the \emph{fairness} condition \textbf{(F)} if:
+\begin{enumerate}
+    \item[(F1)] \emph{PTSR stability:} There exist constants $0 < c_{\text{lo}} \le c_{\text{hi}} < \infty$ such that
+    \[
+        c_{\text{lo}} \;\le\; \mathsf{PTSR}_T(\mathcal{P}_n,\pi_n) := \Expect\left[\frac{\omega_T^{\pi_n}}{D_T^{\pi_n}}\right] \;\le\; c_{\text{hi}};
+    \]
+    \item[(F2)] \emph{PMR stability:} There exist constants $0 < c'_{\text{lo}} \le c'_{\text{hi}} < \infty$ such that
+    \[
+        c'_{\text{lo}} \;\le\; \mathsf{PMR}_T(\mathcal{P}_n,\pi_n) := \Expect\left[\frac{\omega_T^{\pi_n}}{\Delta_T^{\pi_n}}\right] \;\le\; c'_{\text{hi}}.
+    \]
+\end{enumerate}
+These bounds ensure the top winner's residual equity remains proportional to the deficit scale.
+For brevity we write $\mathsf{PTSR}_T(\pi_n)$ (and $\mathsf{PMR}_T(\pi_n)$) whenever the dependence on $\mathcal{P}_n$ is clear from context.
+\end{definition}
+
+\begin{definition}[Revenue Preservation]\label{def:revenue-formal}
+Let $\Phi_T(\pi)$ be the cumulative trading fees generated under policy $\pi$, and let $\mathcal{D}_T(\pi)$ be the cumulative diversion of fees into the insurance fund. The \emph{Exchange Long-Term Value} is defined as the net retained revenue:
+\[
+    \mathrm{LTV}_T(\pi) \;:=\; \Phi_T(\pi) - \mathcal{D}_T(\pi).
+\]
+A policy family $(\pi_n)$ satisfies the \emph{revenue} condition \textbf{(R)} if there exists a constant $c_R \in (0,1]$ such that:
+\[
+    \mathrm{LTV}_T(\pi_n) \;\ge\; c_R \cdot \sup_{\pi'} \Phi_T(\pi').
+\]
+This definition implies that (1) the policy does not cause excessive churn (reducing $\Phi_T$) and (2) the policy does not divert substantially all revenue to insurance (increasing $\mathcal{D}_T$ to $\approx \Phi_T$).
+\end{definition}
+
+\paragraph{Formal Statement of the Trilemma.}
+
+\begin{theorem}[ADL Trilemma]\label{thm:adl-trilemma-formal}
+Let $(\mathcal{P}_n)_{n\ge 1}$ be a sequence of perpetuals exchanges satisfying Assumptions~\ref{ass:rv-trilemma}--\ref{ass:structural-deficit}.
+For any static ADL policy family $(\pi_n)$ with severity sequence $(\theta_n)$, at most two of the three conditions \textbf{(S)}, \textbf{(F)}, and \textbf{(R)} can hold simultaneously.
+
+More precisely:
+\begin{enumerate}
+    \item[\textbf{(I)}] \textbf{(S)} $\wedge$ \textbf{(F)} $\Rightarrow$ $\neg$\textbf{(R)}:
+    If both solvency and fairness hold, then LTV must be sacrificed via full fee diversion, violating \textbf{(R)}.
+    
+    \item[\textbf{(II)}] \textbf{(S)} $\wedge$ \textbf{(R)} $\Rightarrow$ $\neg$\textbf{(F)}:
+    If both solvency and revenue hold, then fairness is sacrificed ($\mathsf{PTSR}_T \to 0$).
+    
+    \item[\textbf{(III)}] \textbf{(F)} $\wedge$ \textbf{(R)} $\Rightarrow$ $\neg$\textbf{(S)}:
+    If both fairness and revenue hold, then solvency is sacrificed ($\Prob[R_t > 0] \to 1$).
+\end{enumerate}
+\end{theorem}
+
+\subsection{Proof of the Trilemma}
+
+We first establish a fundamental identity linking the three quantities.
+
+\begin{lemma}[Solvency-Revenue Identity]\label{lem:solvency-identity}
+For any policy $\pi$, the cumulative deficit $D_T$ must be covered by the haircut budget $B_T$, insurance fund diversions $\mathcal{D}_T$, initial capital $K_0$, and residual insolvency $R_T$:
+\[
+    D_T \;\le\; B_T + \mathcal{D}_T + K_0 + R_T.
+\]
+Substituting the LTV definition $\mathcal{D}_T = \Phi_T - \mathrm{LTV}_T$ and using $K_0 = o(n)$, we obtain the asymptotic inequality:
+\[
+    \mathrm{LTV}_T(\pi) \;\le\; \Phi_T(\pi) + B_T(\pi) + R_T(\pi) - D_T(\pi) + o(n).
+\]
+\end{lemma}
+
+\begin{proof}
+By definition of residual insolvency, any uncovered shortfall after applying haircuts and diverted fees must appear as $R_T$:
+\[
+    R_T \;\ge\; D_T - B_T - \mathcal{D}_T - K_0,
+\]
+which rearranges to $D_T \le B_T + \mathcal{D}_T + K_0 + R_T$, establishing the first inequality. Substituting $\mathcal{D}_T = \Phi_T - \mathrm{LTV}_T$ and using $K_0 = o(n)$ yields the asymptotic bound.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:adl-trilemma-formal}]
+\medskip\noindent\textit{(S) and (F) $\Rightarrow$ $\neg$(R).}
+By \textbf{(F)} and Theorem~\ref{thm:master-ptsr}, $\theta_n = O(b_n/n)$, so $B_T = o(n)$; \textbf{(S)} gives $R_T = o_p(n)$.
+Lemma~\ref{lem:solvency-identity} implies
+\[
+  \frac{\mathrm{LTV}_T}{n} \;\le\; \mu_\Phi + o(1) - \mu_- \;<\; 0
+\]
+using Assumption~\ref{ass:structural-deficit}, contradicting \textbf{(R)}.
+
+\medskip\noindent\textit{(S) and (R) $\Rightarrow$ $\neg$(F).}
+Revenue bounds diversions, so solvency requires $B_T \gtrsim n$, hence $\theta_n=\Theta(1)$.
+Then $\kappa_n=\theta_n n/b_n \to \infty$ (since $b_n=o(n)$); Theorem~\ref{thm:master-ptsr} gives $\mathsf{PTSR}_T \to 0$, violating \textbf{(F)}.
+
+\medskip\noindent\textit{(F) and (R) $\Rightarrow$ $\neg$(S).}
+Fairness again yields $B_T=o(n)$; revenue caps $\mathcal{D}_T$.
+Lemma~\ref{lem:solvency-identity} gives
+\[
+  \frac{R_T}{n} \;\ge\; \mu_- - (1-c_R)\mu_\Phi - o(1) \;>\; 0,
+\]
+so $\Prob[R_T>0]\to 1$, violating \textbf{(S)}.
+\end{proof}
+
+\paragraph{Sharpness and Attainability.}
+
+The trilemma bound is tight in the sense that each pair of desiderata \emph{can} be achieved by an appropriately designed policy:
+
+\begin{proposition}[Attainability of Two Desiderata]\label{prop:attainability}
+Under Assumptions~\ref{ass:rv-trilemma}--\ref{ass:structural-deficit}:
+\begin{enumerate}
+    \item \textbf{(S)} $\wedge$ \textbf{(F)} is achieved by a \emph{high-diversion} policy: set diversions $\mathcal{D}_T \approx \Phi_T$ (taking all revenue) plus potentially external capital if $\mu_- > \mu_{\Phi}$ is very large. This covers deficits ($D_T \approx \mathcal{D}_T$) with minimal haircuts ($B_T \approx 0$), satisfying \textbf{(S)} and \textbf{(F)}, but reducing $\mathrm{LTV}_T \to 0$, violating \textbf{(R)}.
+    
+    \item \textbf{(S)} $\wedge$ \textbf{(R)} is achieved by a \emph{Queue} (concentrated haircut) policy: use high severity $\theta_n = \Theta(1)$ to generate $B_T \approx D_T$. This ensures solvency and preserves fee revenue (since $\mathcal{D}_T \approx 0$), but destroys the top winners ($\mathsf{PTSR}_T \to 0$), violating \textbf{(F)}.
+    
+    \item \textbf{(F)} $\wedge$ \textbf{(R)} is achieved by a \emph{Pro-Rata with low severity} policy: use EV-scaled severity $\theta_n = O(b_n/n)$ and low diversion. This keeps $\mathrm{LTV}_T \approx \Phi_T$ and $\mathsf{PTSR}_T = \Theta(1)$, but leaves an unhedged deficit $R_T \approx D_T > 0$, violating \textbf{(S)}.
+\end{enumerate}
+\end{proposition}
+
+\subsection{Connection to Classical Impossibility Results}
+The ADL trilemma echoes classical impossibility results in mechanism design and finance:
+
+\begin{itemize}
+    \item \emph{Arrow's Impossibility Theorem:} No voting rule satisfies Pareto efficiency, independence of irrelevant alternatives, and non-dictatorship simultaneously~\citep{Arrow1951}.
+    
+    \item \emph{Mundell-Fleming Trilemma:} In international finance, a country cannot simultaneously maintain a fixed exchange rate, free capital movement, and independent monetary policy~\citep{Mundell1963,Fleming1962}.
+    
+    \item \emph{CAP Theorem:} In distributed systems, a database cannot provide consistency, availability, and partition tolerance simultaneously~\citep{Brewer2000,GilbertLynch2002}.
+    
+    \item \emph{Credibility Trilemma:} Single-item auctions cannot be simultaneously optimal, strategy-proof, and credible, forcing designers to sacrifice at least one desideratum~\citep{AkbarpourLi2020}.
+\end{itemize}
+
+These connections suggest the trilemma is a fundamental constraint arising from the heavy-tailed nature of crypto markets, not an artifact of specific mechanism choices.
+
+\paragraph{Circumventing Impossibility via Relaxations.}
+
+While the impossibility results are strict in worst-case settings, recent literature demonstrates that they can be circumvented under probabilistic assumptions or cryptographic commitments:
+\begin{enumerate}
+\item \emph{Quantitative Arrow's Theorem:} 
+    Recent results in quantitative social choice show that while Arrow's impossibility holds in the worst case, the probability of paradoxical outcomes (like intransitivity) can be small for many natural distributions of preferences~\citep{MosselNeemanTamuz2014}.
+    Analogously, our ADL trilemma bounds hold with high probability under heavy-tailed distributions, but dynamic policies (like Stackelberg controllers) can minimize the frequency of trilemma-binding events, achieving a ``quantitative'' relaxation.
+
+    \item \emph{Probabilistic CAP Theorem:} 
+    Blockchains circumvent the strict CAP theorem by weakening consistency to probabilistic finality (e.g., Nakamoto consensus) or availability to liveness under synchronous periods~\citep{PassShi2017,Shi2020,ShiConsensusBook}.
+    This parallels the \textbf{(S)} vs.\ \textbf{(R)} trade-off: exchanges effectively accept probabilistic solvency (via insurance funds) to maintain liveness (continuous trading/revenue).
+
+\item \emph{Cryptographic Commitments for Credibility:} 
+    The credibility trilemma of Akbarpour and Li motivates cryptographic mechanisms that make optimal auctions simultaneously credible and strategy-proof by enforcing operator commitments~\citep{AkbarpourLi2020,FerreiraWeinberg2020,EssaidiFerreiraWeinberg2022,ChitraFerreiraKulkarni2024}.
+    For ADL, this suggests that verifiable execution (\eg~via zero-knowledge proofs or on-chain logic) could allow an exchange to commit to a dynamic policy that balances the trilemma better than any opaque static policy could, by removing the operator's incentive to deviate during crises.
+\end{enumerate}

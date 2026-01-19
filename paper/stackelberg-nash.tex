@@ -1,0 +1,27 @@
+\subsection{Stackelberg vs.\ Nash in a Two-Round ADL Game}\label{app:stack-nash}
+
+This appendix illustrates how the timing of moves affects equilibrium selection in ADL scenarios. We show that while simultaneous moves (Nash) can result in a coordination failure where no one unwinds, sequential moves (Stackelberg) allow a leader to induce the efficient high-unwind outcome.
+
+\iparagraph{Setup.}
+Consider two agents $i \in \{1, 2\}$, each holding one unit of position.
+At $t=1$, each agent chooses whether to \emph{unwind} (voluntarily close) their position ($x_i=1$) or maintain it ($x_i=0$).
+Let $X = x_1 + x_2$ be the total volume of voluntary unwinds.
+We assume that forced ADL occurs at $t=2$ if this volume is insufficient, i.e., if $X < T$ for some safety threshold $T \in (1, 2]$.
+Voluntary unwinding incurs a transaction cost $f > 0$.
+However, if ADL is triggered (because $X < T$), \emph{every} agent suffers an additional penalty cost $c > f$, regardless of their individual choice.
+
+\iparagraph{Simultaneous play (Nash).}
+In simultaneous play, there are two pure Nash equilibria and we effectively have a Coordination Game~\cite{FudenbergTirole1991}:
+\begin{itemize}
+    \item \emph{Coordination failure $(0,0)$:} If the opponent plays $0$, playing $1$ results in volume $1 < T$. ADL still triggers, yielding a total cost $f+c > c$. Thus, the best response is $0$, making $(0,0)$ stable.
+    \item \emph{Coordination success $(1,1)$:} If the opponent plays $1$, playing $1$ achieves volume $2 \ge T$ at cost $f$. Since $f < c$, this is preferred to playing $0$ (which yields volume $1 < T$ and cost $c$), making $(1,1)$ stable.
+\end{itemize}
+This creates a coordination problem: agents may get stuck in the inefficient $(0,0)$ equilibrium where ADL triggers.
+
+\begin{proposition}[Stackelberg Dominance]\label{prop:stack-nash}
+In sequential play where Agent 1 moves first, the unique subgame‑perfect equilibrium is $(1,1)$. Agent 2 observes Agent 1 and will match their action (per the logic above). Agent 1 anticipates this: playing $0$ leads to $(0,0)$ with cost $c$, while playing $1$ induces $(1,1)$ with cost $f$. Since $f < c$, Agent 1 chooses $1$, eliminating the bad equilibrium.
+\end{proposition}
+
+\iparagraph{Numerical example.}
+Let $f=1$, $c=5$, and $T=1.5$.
+In simultaneous play, $(0,0)$ is stable because deviating costs $1+5=6 > 5$. In Stackelberg play, the leader plays $1$, knowing the follower will respond with $1$ (cost $1$) rather than triggering ADL (cost $5$). From the exchange's perspective, if ADL losses exceed $2f$, the sequential outcome $(1,1)$ is strictly preferred as it collects fees and preserves solvency.

@@ -1,0 +1,125 @@
+\documentclass[main.tex]{subfiles}
+\begin{document}
+
+\section{Risk-Aware Pro-Rata (RAP)}\label{app:rap}
+\input{main_examples.tex}
+
+\subsection{RAP Optimality and Convex Dominance}\label{app:rap-optimality-and-convex-dominance}\label{sec:rap-optimality-and-convex-dominance}
+In this appendix, we prove two statements: 1) RAP optimizes the one-step next deficit~\eqref{eq:delta-T} and 2) RAP has a smaller residual than any other comonotone haircut rule.
+
+\iparagraph{RAP optimizes $\delta_T$.}
+In this section, we briefly show that RAP optimizes the one-step deficit proxy $\delta_T$.
+We do this by showing that the weights determined by the perspective transformr $\rho(\lambda)$, which define $g^{\star}$, optimize $\delta_T$.
+
+\begin{proposition}\label{thm:rap-onestep-7}
+Fix a round $t$ with budget $b_t=\theta_t|D_t|$ and per‑account caps $0\le H_{t,i}\le 1$. For
+\[
+\delta_t(h)=\sum_{i\in W_t} (1-h_{t,i})\,\lambda_{t,i}e_{t,i}\,\psi_i\!\Big(\tfrac{1}{\lambda_{t,i}}\Big)
+\]
+the capped reverse-\-waterfilling with weights $w_{t,i}=\rho(\lambda_{t,i})=\lambda_{t,i}\psi_i(1/\lambda_{t,i})$ minimizes $\delta_t(h)$ among all $h$ with $\sum_i e_{t,i}h_{t,i}=b_t$ and $0\le h_{t,i}\le H_{t,i}$.
+\end{proposition}
+\begin{proof}
+Using $\rho(\lambda)=\lambda\psi(1/\lambda)$,
+\[
+\delta_t(h)=\sum_i (1-h_{t,i})\,\lambda_{t,i}e_{t,i}\,\psi(1/\lambda_{t,i})
+\equiv C_h - \sum_i \rho(\lambda_{t,i}) e_{t,i} h_{t,i}
+\]
+where $C_h$ is a constant independent of $h$ (can depend on $\lambda_{t,i}$).
+Maximizing $\sum_i \rho(\lambda_{t,i})\,e_{t,i} h_{t,i}$ under $\sum_i s_{t,i}=b_t$ and $0\le s_{t,i}\le e_{t,i}H_{t,i}$ is a fractional knapsack problem solved by sorting the values $\rho(\lambda_{t,i})$.
+The optimizer for this problem is reverse‑waterfilling~\cite{BoydVandenberghe2004}:
+\[
+h_{t,i}=\min\{H_{t,i},\ \tau^\star_t\,w_{t,i}\},\qquad w_{t,i}=\rho(\lambda_{t,i}),
+\]
+with $\tau^\star_t$ set by $\sum_i e_{t,i}h_{t,i}=b_t$. 
+This choice of $w$ minimizes $\delta_t$ among all weighted reverse‑waterfilling rules.
+\end{proof}
+
+\iparagraph{RAP realizes Schur-convex dominance.}\label{app:lpr-convex-dominance}
+We first note that theoretical results from the measure theoretic literature imply than RAP should provide Schur-convex dominance.
+RAP weights $w_i = \lambda_{T,i} g(\lambda_{T,i})$ can be interpreted as allocating budget proportional to a coherent, law-invariant risk measure.
+Specifically, let $\rho(\lambda) = \lambda\,\psi(1/\lambda)$ be a risk density with $\psi$ convex and nonincreasing.
+This corresponds to a spectral risk measure $\rho(X) = \int_0^1 \mathrm{ES}_\alpha(X)\,d\mu(\alpha)$ via the Kusuoka representation~\citep{Kusuoka2001,Acerbi2002}.
+Choosing $g(\lambda) = \rho(\lambda)/\lambda$ aligns the RAP allocation with this spectral density.
+Known results from~\cite{Kusuoka2001} then imply RAP with a ``more convex'' risk density (in the Schur sense) will weakly Schur-dominate any other weighted pro-rata rule with a less concentrated density.
+Instead of utilizing such strong measure theoretic tools, we instead prove this directly below in an elementary manner.
+
+\begin{theorem}[Constructive Schur–convex dominance]\label{thm:rho-to-g-dominance}
+Fix $T$, budget $b_T$, and caps $(\beta_i)$. Let $\rho$ be nondecreasing and $g^\star(\lambda)=\rho(\lambda)/\lambda$.
+Consider any weighted pro-rata rule $h^{(w)}$ with weights $w$.
+If the haircut share vector of $h^{(w)}$ is no more concentrated on high-$\rho$ indices than that of $\mathrm{RAP}(g^\star)$ on any fixed active set, then the residual vector of $\mathrm{RAP}(g^\star)$ weakly submajorizes that of $h^{(w)}$:
+\[
+z_T(\mathrm{RAP}(g^\star)) \preceq_w z_T(h^{(w)}).
+\]
+Thus, for any convex increasing $\phi$, $\sum \phi(z_{T,i}(\mathrm{RAP})) \le \sum \phi(z_{T,i}(h^{(w)}))$.
+\end{theorem}
+
+\begin{proof}
+We split this proof into three steps.
+The first step is analogous to the proof of Proposition~\ref{thm:unique-pro-rata}, where we analyze the change to the weights on a piecewise constant set of intervals.
+The second step is to analyze how the residuals change with budget using the piecewise-constant representation.
+Given the change in residual, the final step uses the majorization inequality to show that the residual vector of RAP weakly submajorizes that of any other weighted pro-rata rule.
+
+\emph{Step 1: Active set and parameterization.}
+We first define the active set $A(b)$ as in~\eqref{eq:active-set}.
+Any weighted reverse‑waterfilling with weights $w$ admits the water‑level form
+\[
+  h^{(w)}_{T,i}(b)\;=\;\min\{\beta_i,\ \tau^{(w)}(b)\,w_i\},
+\]
+where $\tau^{(w)}(b)$ is chosen so that $\sum_i e_{T,i}\,h^{(w)}_{T,i}(b)=b$.
+On an interval $[b_0,b_1]$ with fixed $A(b)$ we have
+\[
+  \frac{db}{d\tau^{(w)}}=\sum_{j\in A(b)} e_{T,j} w_j,
+  \qquad
+  \frac{d h^{(w)}_{T,i}}{db}
+  \;=\;
+  \begin{cases}
+    \displaystyle \frac{w_i}{\sum_{j\in A(b)} e_{T,j} w_j},& i\in A(b),\\[1.0ex]
+    0,& i\notin A(b).
+  \end{cases}
+\]
+\emph{Step 2: Residual dynamics.}
+Next we look at how the residuals (\eg~post haircut equity) change with budget.
+Write the reweighted residuals as
+\[
+  z_{T,i}(b)\;=\;\rho(\lambda_{T,i})\,e_{T,i}\,\bigl(1-h_{T,i}(b)\bigr).
+\]
+Then on $[b_0,b_1]$,
+\[
+  \frac{d z^{(w)}_{T,i}}{db}
+  \;=\;
+  \begin{cases}
+    \displaystyle -\frac{\rho(\lambda_{T,i})\,e_{T,i}\,w_i}{\sum_{j\in A(b)} e_{T,j} w_j},& i\in A(b),\\[1.0ex]
+    0,& i\notin A(b).
+  \end{cases}
+\]
+For $\mathrm{RAP}(g^\star)$ we take $w_i=\rho(\lambda_{T,i})$, giving
+\[
+  \frac{d z^{(\mathrm{RAP})}_{T,i}}{db}
+  \;=\;
+  \begin{cases}
+    \displaystyle -\frac{\rho(\lambda_{T,i})^2\,e_{T,i}}{\sum_{j\in A(b)} e_{T,j} \rho(\lambda_{T,j})},& i\in A(b),\\[1.0ex]
+    0,& i\notin A(b).
+  \end{cases}
+\]
+\emph{Step 3: Majorization at each budget.} On a fixed $A(b)$, sort indices by decreasing $\rho(\lambda_{T,i})$.
+By the hypothesis that the haircut share vector of $h^{(w)}$ on $A(b)$,
+\[
+  \sigma^{(w)}_i(b)\ :=\ \frac{e_{T,i} w_i}{\sum_{j\in A(b)} e_{T,j} w_j},
+\]
+is no more concentrated on high‑$\rho$ indices than the RAP share
+$\sigma^{(\mathrm{RAP})}_i(b)=\frac{e_{T,i} \rho(\lambda_{T,i})}{\sum_{j\in A(b)} e_{T,j} \rho(\lambda_{T,j})}$, the rearrangement/majorization inequality implies that for every $k$,
+\[
+  \sum_{i\le k}\!\frac{d z^{(\mathrm{RAP})}_{T,(i)}}{db}
+  \;\leq\;
+  \sum_{i\le k}\!\frac{d z^{(w)}_{T,(i)}}{db}
+\]
+where $(i)$ denotes the order by decreasing $\rho$.
+Hence the instantaneous decrease vector under RAP weakly submajorizes that under $h^{(w)}$ on $[b_0,b_1]$.
+Integrating over $b$ preserves $\prec_w$ on the interval, and concatenating the finitely many intervals where $A(b)$ changes preserves the order overall:
+$z_T(\mathrm{RAP}(g^\star)) \preceq_w z_T(h^{(w)})$.
+Schur–convexity then yields the separable convex loss comparison.
+\end{proof}
+
+\input{ltv-example.tex}
+
+\end{document}

@@ -1,0 +1,89 @@
+
+\section{Empirical Methodology}\label{app:methodology}
+This appendix documents the OSS reproduction pipeline underlying~\S\ref{sec:numerics}.
+The goal is to make the empirical objects \emph{file-backed} (every number in~\S\ref{sec:numerics} is computed from on-disk artifacts under \texttt{OSS/out/}) and to keep the two-space hygiene explicit: production ADL executes in contract space, while we measure impacts in wealth space.
+
+\subsection{Data construction}\label{app:methodology-data}
+
+\iparagraph{Data sources.}
+We use HyperReplay's ground-truth fill and misc event streams together with clearinghouse snapshots to replay winner account states.
+We also use the canonical REALTIME table \texttt{adl\_detailed\_analysis\_REALTIME.csv} to extract winner sets and to form equity/PNL capacity proxies.
+The OSS code resolves upstream paths in \texttt{OSS/src/oss\_adl/paths.py} and writes derived artifacts under \texttt{OSS/out/}.
+
+\iparagraph{Wave construction (global time waves).}
+We define \emph{global waves} by gap clustering on ADL-fill timestamps:
+sort ADL-fill rows by time, start a new wave when the inter-fill gap exceeds \(\texttt{gap\_ms}=5000\)ms, and define wave \(t\) as \([t_{\mathrm{start}}(t),t_{\mathrm{end}}(t)]\).
+Global (not per-coin) waves avoid double counting a single solvency episode across multiple markets.
+
+\iparagraph{Loser deficit \(D_t\).}
+For each wave, the realized loser deficit is
+\[
+D_t=\sum_{j \in \mathrm{losers}(t)}(-e_t(j))_+,
+\]
+computed from loser-side liquidation equity fields.
+Concretely, for each \texttt{liquidated\_user} we take the minimum observed \texttt{liquidated\_total\_equity} within the wave and sum the negative minima across users.
+
+\iparagraph{Needed budget \(B_t^{\mathrm{needed}}\).}
+For each ADL fill \(k\), we parse the liquidation mark \(p_k^{\mathrm{mark}}\) and execution price \(p_k^{\mathrm{exec}}\) from the raw fill stream (fields \texttt{markPx} and \texttt{px}), together with size \(q_k\), and set
+\[
+\mathrm{needed}_k:=\lvert p_k^{\mathrm{mark}}-p_k^{\mathrm{exec}}\rvert\cdot \lvert q_k\rvert,
+\qquad
+B_t^{\mathrm{needed}}:=\sum_{k \in \text{fills in wave }t}\mathrm{needed}_k.
+\]
+This is an instantaneous bankruptcy-gap proxy: it does not include opportunity cost after the wave ends.
+
+\iparagraph{Two-pass replay and production wealth removed \(H_t^{\mathrm{prod}}(\Delta)\).}
+We replay the realized event stream twice for the winner set in each wave:
+an ADL-on pass (apply all fills) and a no-ADL pass (skip ADL fills in state updates while keeping the realized price path).
+We evaluate equities at \(t_{\mathrm{eval}}=t_{\mathrm{end}}+\Delta\) (after wave end we update only the price path) and compute
+\[
+H_t^{\mathrm{prod}}(\Delta)=\sum_{u\in W(t)}\bigl(e_{t,\mathrm{end}}^{\mathrm{no\text{-}ADL}}(u;\Delta)-e_{t,\mathrm{end}}^{\mathrm{ADL}}(u;\Delta)\bigr)_+.
+\]
+The no-ADL counterfactual is not identifiable from public data without an assumption; we use the standard ``hold the realized price path fixed, remove the ADL state update'' counterfactual.
+
+\iparagraph{Production overshoot vs needed.}
+We report
+\[
+O_t(\Delta):=H_t^{\mathrm{prod}}(\Delta)-B_t^{\mathrm{needed}},\qquad
+O(\Delta):=\sum_t O_t(\Delta).
+\]
+A horizon sweep varies \(\Delta\) (scenario parameter) to expose a short-horizon opportunity-cost channel.
+The per-horizon totals are written to \texttt{OSS/out/eval\_horizon\_sweep\_gap\_ms=5000.csv} and summarized in \texttt{OSS/out/overshoot\_robustness.json}.
+
+\subsection{Benchmark allocations targeting \(B_t^{\mathrm{needed}}\)}\label{app:benchmarks}
+To make ``excessive relative to alternatives'' concrete, we compare production to transparent benchmark allocations that target \(B_t^{\mathrm{needed}}\) wave-by-wave under a profits-only capacity constraint.
+For each wave we build a per-user capacity proxy
+\[
+c_u:=\min\{U(u),E(u)\},
+\]
+where \(U(u)\) is positive unrealized PNL and \(E(u)\) is positive equity, both taken from the canonical REALTIME table within the wave window.
+Benchmarks differ mainly in how they handle contract discreteness:
+\begin{itemize}
+  \item \emph{Wealth pro-rata (continuous)}: capped pro-rata in wealth-space USD over \(c_u\).
+  \item \emph{Vector mirror descent (vector-md)}: a projection-based allocator that produces \(h=x\odot c\) with \(c^\top x=B_t^{\mathrm{needed}}\) and \(x\in[0,1]^n\).
+  \item \emph{Contract pro-rata}: standard exchange-style integer allocation proportional to position size.
+  \item \emph{Min-max ILP}: MIP solver minimizing maximum haircut percentage.
+\end{itemize}
+These outputs are written to \texttt{OSS/out/policy\_per\_wave\_metrics.csv} and plotted in Figures~\ref{fig:emp-policy-per-wave}--\ref{fig:emp-cumulative-overshoot}.
+
+\subsection{Diagnostic decomposition (not the \S9 overshoot metric)}\label{app:markout-diagnostic}
+This subsection is a diagnostic for interpreting execution timing and for answering common ``markout'' questions; it is not the overshoot metric used in~\S\ref{sec:numerics}.
+From the ADLed user's perspective, with signed quantity \(Q\), execution price \(p_{\text{exec}}\), nearest mark at execution time \(p_{\text{mark}}(t)\), and mark at horizon \(p_{\text{mark}}(t+\Delta)\), total markout decomposes as
+\[
+Q\cdot(p_{\text{mark}}(t+\Delta)-p_{\text{exec}})
+=
+Q\cdot(p_{\text{mark}}(t)-p_{\text{exec}})
++
+Q\cdot(p_{\text{mark}}(t+\Delta)-p_{\text{mark}}(t)).
+\]
+Because this diagnostic combines executions with time-indexed marks and the public-data replay lacks full clearing/settlement observability, its aggregate need not satisfy a strict two-party zero-sum identity.
+
+\iparagraph{Revenue proxy.}\label{app:revenue-proxy}
+To translate haircut allocations into an expected loss of future fees, we use a minimal churn proxy.
+For a winner \(u\) in wave \(t\) with USD haircut \(h_{t,u}\) and capacity proxy \(c_u\), define the churn probability
+\[
+p_{t,u}=1-\exp\!\left(-\beta\,h_{t,u}/c_u\right),
+\]
+and use this to scale down a simple fee proxy based on notional and per-trade fee rates.
+This proxy is intended for within-paper comparisons under a common set of assumptions; it is not an identification claim about venue-level revenue.
+

@@ -1,0 +1,173 @@
+\section{Moral Hazard and Extreme Value Analysis}\label{app:proofs}\label{app:moral-hazard-2}
+
+In this appendix, we formalize the moral hazard properties of ADL mechanisms.
+We analyze the optimal control of the Profitability-to-Total-Solvency Ratio (PTSR) and the Profitability-to-Maximum Solvency Ratio (PMR) defined in~\S\ref{sec:risk-metrics}, and derive their asymptotic behavior under distributional assumptions.
+
+\subsection{Setup and Assumptions}
+
+We work in the \emph{large-market limit} ($n\to\infty$) under the heavy-tailed assumptions characteristic of crypto markets.
+Recall that $D^\pi_T = \theta_\pi D_T$ is the total socialized loss and $\Delta^\pi_T = \theta_\pi \Delta_T$ is the maximum socialized shortfall under policy $\pi$.
+The survivor of the top winner's endowment is denoted $\upsilon^\pi_T = \max_i (w_{i,T} - x_{\pi,i})_+$ (under PNL-only, this is the maximum post-ADL positive PNL).
+
+\iparagraph{Assumption A (regular variation).}
+The right tail of the winner endowment distribution $\bar F_+(x)$ (under PNL-only, the distribution of positive PNL) and the right tail of the loser shortfall distribution $\bar F_-(x)$ are regularly varying with indices $\alpha_+ > 0$ and $\alpha_- > 0$, respectively.
+That is, $\bar F_\pm(x) = L_\pm(x) x^{-\alpha_\pm}$ where $L_\pm$ are slowly varying functions.
+
+\iparagraph{Assumption B (LLN and EVT).}
+We assume the standard Law of Large Numbers (LLN) and Extreme Value Theory (EVT) scaling limits apply:
+\begin{itemize}
+    \item \emph{Aggregates:} $U_T/n \xrightarrow{p} \mu_+$ (total endowment capacity) and $D_T/n \xrightarrow{p} \mu_-$ (total deficit), for constants $\mu_\pm \in (0, \infty)$.
+    \item \emph{Extremes:} The maximum winner endowment $\upsilon_T$ scales as $b_{k_n}^+ = F_+^\leftarrow(1-1/n)$, and the maximum loser shortfall $\Delta_T$ scales as $b_{m_n}^- = F_-^\leftarrow(1-1/n)$.
+\end{itemize}
+
+\subsection{Optimal Control of Moral Hazard}
+
+\subsection{Queue maximizes top-winner damage}\label{app:queue-vs-pr-top}
+
+We first establish that the \emph{Queue} (or Top-First) rule minimizes the moral hazard metrics defined in the main text for any fixed budget.
+
+\begin{proposition}[Queue Minimizes Top Survivor]\label{prop:queue-min-top}
+    Fix a budget $H = D^\pi_T$. Let $\upsilon_T$ be the endowment of the largest winner (under PNL-only, the maximum positive PNL).
+    For any feasible haircut vector $h$ satisfying $\sum_i h_i w_{i,T} = H$ (budget constraint in endowment space), the top-winner endowment survivor $\upsilon^\pi_T$ satisfies
+    \[
+        \upsilon^\pi_T \;\ge\; \max\{\upsilon_T - H, 0\}.
+    \]
+    Equality is attained by the Queue rule, which sets the haircut on the top winner to $h_{(1)} = \min(H/\upsilon_T, 1)$ and others to $0$ (until $h_{(1)}$ saturates).
+\end{proposition}
+
+\begin{proof}
+    Let $h_{(1)}$ be the haircut applied to the top winner's endowment.
+    Since $h_i w_{i,T} \ge 0$ for all $i$, we have $h_{(1)} \upsilon_T \le \sum_{i} h_i w_{i,T} = H$.
+    The survivor is $\upsilon^\pi_T = \upsilon_T - h_{(1)} \upsilon_T \ge \upsilon_T - H$.
+    Since endowment cannot be negative, $\upsilon^\pi_T \ge \max\{\upsilon_T - H, 0\}$.
+    The Queue rule greedily allocates the budget to the largest endowment position, achieving $h_{(1)} \upsilon_T = \min(H, \upsilon_T)$, thus attaining the lower bound.
+\end{proof}
+
+\begin{corollary}[Minimality of PTSR/PMR]
+    Since $D^\pi_T$ and $\Delta^\pi_T$ are fixed for a given policy severity, the Queue rule minimizes both $\mathsf{PTSR}_T$ and $\mathsf{PMR}_T$ among all budget-balanced policies.
+\end{corollary}
+
+\iparagraph{Gap versus pro-rata.}
+The Queue rule minimizes moral hazard but concentrates the entire loss on the top winner (extreme inequality).
+In contrast, the Pro-Rata rule spreads the loss proportionally across all winners, prioritizing \emph{smoothness} (treating similar positions similarly) over minimizing the top survivor's burden.
+For $H \le \upsilon_T$, the survivor gap is
+\[
+    \upsilon^{\mathrm{PR}}_T - \upsilon^{\mathrm{Queue}}_T \;=\; H \left( 1 - \frac{\upsilon_T}{U_T} \right),
+\]
+where $U_T = \sum_i w_{i,T}$ is the total endowment capacity.
+This gap scales linearly with the budget $H$, quantifying the ``cost of fairness'': by choosing the smoother Pro-Rata allocation, the system allows the top winner to retain more profit capacity than is strictly necessary to cover the deficit.
+
+\subsection{Asymptotic Scaling Results}
+
+We now characterize the asymptotic behavior of PTSR and PMR under ``gentle'' policies (like Pro-Rata) where the top winner is not specifically targeted.
+
+\begin{theorem}[PTSR scaling]\label{thm:master-ptsr}\label{thm:ptsr-scaling}\label{thm:ev-main}
+    Under Assumptions A and B, for any policy $\pi$ with severity $\theta_n$ where $\upsilon^\pi_T \sim \upsilon_T$ (e.g., Pro-Rata with $H \ll U_T$), the PTSR scales as
+    \[
+        \mathsf{PTSR}_T(\pi) \;\asympp\; \frac{b_{k_n}^+}{\theta_n n},
+    \]
+    where $\upsilon^\pi_T$ is the maximum post-ADL endowment.
+\end{theorem}
+
+\begin{proof}
+    By definition, $\mathsf{PTSR}_T(\pi) = \Expect[\upsilon^\pi_T/D^\pi_T]$.
+    Under the hypothesis, the numerator scales as $\upsilon_T \sim b_{k_n}^+$ (the maximum endowment, which under PNL-only is the maximum positive PNL).
+    The denominator is $D^\pi_T = \theta_n D_T$. By the LLN, $D_T \sim \mu_- n$, so $D^\pi_T \sim \theta_n \mu_- n$.
+    Thus, the ratio scales as $b_{k_n}^+/(\theta_n n)$.
+    Using bounded convergence for the expectation yields the result.
+\end{proof}
+
+\iparagraph{Implication.}
+The behavior of PTSR depends critically on the tail class of winner endowments (under PNL-only, positive PNL):
+\begin{itemize}
+    \item \emph{Pareto (Heavy) Tails:} $b_{k_n}^+ \asymp n^{1/\alpha_+}$. Here $\mathsf{PTSR}_T \asymp n^{1/\alpha_+ - 1}/\theta_n$. Moral hazard vanishes ($\mathsf{PTSR} \to 0$) if and only if winners have finite mean ($\alpha_+ > 1$). If $\alpha_+ < 1$, the top survivor grows faster than the aggregate deficit, making the moral hazard wedge permanent.
+    \item \emph{Exponential/Gaussian (Light) Tails:} $b_{k_n}^+ \asymp (\log n)^\gamma$. Here $\mathsf{PTSR}_T \asymp (\log n)^\gamma / (n \theta_n)$. Since polylog growth is slower than linear, moral hazard vanishes rapidly for any non-vanishing severity $\theta_n$, as the aggregate deficit overwhelms the largest individual winner's endowment.
+\end{itemize}
+
+\begin{theorem}[PMR Scaling]\label{thm:pmr-scaling}
+    Assume winner endowments scale with leverage mass $\ell_n^+$ and loser deficits scale with leverage mass $\ell_n^-$ (representing total leverage), and that the underlying normalized distributions satisfy Assumption A.
+    The PMR scales as:
+    \[
+        \mathsf{PMR}_T(\pi) \;\asympp\; \frac{1}{\theta_n} \cdot \frac{\ell_n^+}{\ell_n^-} \cdot \frac{b_{k_n}^+}{b_{m_n}^-} \;\asymp\; \frac{1}{\theta_n} \cdot \frac{\ell_n^+}{\ell_n^-} \cdot n^{\frac{1}{\alpha_+} - \frac{1}{\alpha_-}},
+    \]
+    where $\upsilon^\pi_T$ is the maximum post-ADL endowment.
+\end{theorem}
+
+\begin{proof}
+    We have $\mathsf{PMR}_T(\pi) = \Expect[\upsilon^\pi_T / \Delta^\pi_T]$.
+    The top winner's endowment scales with total winner leverage mass: $\upsilon_T \sim \ell_n^+ b_{k_n}^+$ (under PNL-only, this is the maximum positive PNL).
+    The maximum loser shortfall scales with total loser leverage mass: $\Delta_T \sim \ell_n^- b_{m_n}^-$.
+    The budget balance condition implies $\Delta^\pi_T = \theta_n \Delta_T$.
+    Thus, the ratio scales as
+    \[
+        \frac{\ell_n^+ b_{k_n}^+}{\theta_n \ell_n^- b_{m_n}^-} \;=\; \frac{1}{\theta_n} \frac{\ell_n^+}{\ell_n^-} \frac{b_{k_n}^+}{b_{m_n}^-}.
+    \]
+    Substituting the regular variation scalings $b_{k_n}^+ \sim n^{1/\alpha_+}$ and $b_{m_n}^- \sim n^{1/\alpha_-}$ yields the result.
+\end{proof}
+
+Theorem~\ref{thm:pmr-scaling} decomposes moral hazard into three components:
+(1) \emph{Policy Severity} ($1/\theta_n$): Lower severity amplifies PMR.
+(2) \emph{Leverage Imbalance} ($\ell_n^+/\ell_n^-$): If the winning side holds more leverage mass, PMR increases.
+(3) \emph{Tail Risk} ($n^{1/\alpha_+ - 1/\alpha_-}$): Heavier winner tails relative to losers drive PMR divergence.
+This decomposition highlights that even with fair tails ($\alpha_+ = \alpha_-$), a systemic leverage imbalance ($\ell_n^+ \gg \ell_n^-$) can sustain a high PMR.
+Specifically, if the exchange allows winners to be significantly more leveraged than losers (a "risk-on" imbalance), the top winner's survival will systematically outstrip the worst-case socialized loss, creating a persistent moral hazard where maximal profits are privatized while maximal losses are capped.
+
+\subsection{Relationship to Classical Risk Measures}\label{app:classical-risk-measures}
+
+These two metrics have natural interpretations in terms of financial risk measures.
+The deficit $D_T$ corresponds to the aggregate \emph{Expected Shortfall} (ES) of the losing tail, while $\Delta_T$ corresponds to the \emph{Value-at-Risk} (VaR) at the extreme quantile ($1/n$).
+Specifically, PTSR compares the \emph{Maximum Profit} to the \emph{Aggregate Socialized Loss} (ES-like), measuring efficiency in bulk.
+PMR compares the \emph{Maximum Profit} to the \emph{Maximum Socialized Loss} (VaR-like), measuring efficiency in the extreme tail.
+A high PMR implies that the system permits ``unicorn'' wins that vastly exceed the worst-case individual losses, potentially incentivizing excessive risk-taking if traders perceive a capped downside but unbounded upside.
+
+We further strengthen the connection to classical risk measures by showing that Queue not only minimizes the top survivor in expectation, but also minimizes it in the sense of VaR and ES at \emph{every} tail level.
+\begin{proposition}[Queue minimizes VaR/ES of the top survivor]\label{thm:queue-var-es}
+  Fix any budget $h\ge 0$ and $\alpha\in(0,1)$.
+  For any feasible haircut vector $h$ with $\sum_i h_i e_i = h$,
+  \[
+    \omega^\pi_T \;\ge\; (\omega_T - h)_+ \quad\text{a.s.}
+  \]
+  Consequently,
+  \[
+    \mathrm{VaR}_\alpha(\omega^\pi_T) \;\ge\; \mathrm{VaR}_\alpha\big((\omega_T - h)_+\big),\qquad
+    \mathrm{ES}_\alpha(\omega^\pi_T) \;\ge\; \mathrm{ES}_\alpha\big((\omega_T - h)_+\big).
+  \]
+  The Queue rule attains equality. Moreover, the following identities hold:
+  \[
+    \mathrm{VaR}_\alpha\big((\omega_T - h)_+\big) \;=\; \max\{\mathrm{VaR}_\alpha(\omega_T) - h,\, 0\},
+  \]
+  \[
+    \mathrm{ES}_\alpha\big((\omega_T - h)_+\big) \;=\; \frac{1}{1-\alpha}\int_\alpha^1 \max\{\mathrm{VaR}_u(\omega_T) - h,\, 0\}\,du.
+  \]
+\end{proposition}
+
+\begin{proof}
+  The pointwise lower bound $\omega^\pi_T \ge (\omega_T - h)_+$ follows from the budget constraint and nonnegativity of haircuts, as in Proposition~\ref{prop:queue-min-top}.
+  Monotonicity of risk measures implies that if $X\ge Y$ almost surely, then $\mathrm{VaR}_\alpha(X)\ge \mathrm{VaR}_\alpha(Y)$ and $\mathrm{ES}_\alpha(X)\ge \mathrm{ES}_\alpha(Y)$.
+  For the identities, observe that $x\mapsto (x-h)_+$ is nondecreasing; hence quantiles shift: $\mathrm{VaR}_\alpha((X-h)_+) = \max\{\mathrm{VaR}_\alpha(X)-h,0\}$.
+  The ES identity follows from the Kusuoka representation~\cite{Kusuoka2001} $\mathrm{ES}_\alpha(Z)=\frac{1}{1-\alpha}\int_\alpha^1 \mathrm{VaR}_u(Z)\,du$ applied to $Z=(X-h)_+$.
+\end{proof}
+
+\iparagraph{Implication for severity design.}
+For a random budget $H=\theta_n D_T$, apply Theorem~\ref{thm:queue-var-es} conditionally on $H$ to conclude that Queue minimizes the conditional VaR/ES of the top survivor at every tail level.
+When $\alpha_+>1$ (finite mean winners), the tail-equivalence property of regularly varying distributions yields
+\[
+  \frac{\mathrm{ES}_u(\omega_T)}{\mathrm{VaR}_u(\omega_T)} \;\to\; \frac{\alpha_+}{\alpha_+-1}\qquad\text{as }u\uparrow 1,
+\]
+so VaR- and ES-based moral hazard conclusions coincide asymptotically with those of PTSR and PMR.
+
+\subsection{Randomized constructions for moral-hazard examples}\label{app:mh-example}
+
+\iparagraph{Extreme-value moral hazard (principal–agent).}
+Fix $\rho\in(0,1)$ and $k_n=\lfloor \rho n\rfloor$. Draw winner equities $Y_i^{(n)}$ i.i.d.\ Pareto$(\alpha_+)$ and loser equities $X_i^{(n)}$ with mean $\mu$.
+Then $M_n^+=\max Y_i^{(n)} \asymp n^{1/\alpha_+}$ while non-max winners sum to $o(M_n^+)$.
+Losers sum to $D_T \approx \mu n$.
+For fixed severity $\theta_n \equiv \bar\theta$, the haircut $H_n \approx \bar\theta \mu n$ exceeds the capacity of non-max winners, forcing the top winner to cover the bulk.
+Post-ADL equity is $(M_n^+ - \bar\theta \mu n)_+ \to 0$ since $n^{1/\alpha_+} \ll n$ for $\alpha_+ < 1$.
+
+\iparagraph{Leverage-imbalance construction.}\label{app:mh-leverage}
+Fix leverage masses $\ell_n^- \gg \ell_n^+$. Draw loser equities $X_i^{(n)}$ i.i.d.\ Pareto$(\alpha_-)$, so $D_T \approx M_n^- \asymp n^{1/\alpha_-}$.
+Assign winner leverage $c\,\ell_n^+$ to a random index $I_n$ and distribute the rest evenly.
+Then $\omega_n \asymp (\ell_n^+/\ell_n^-) n$.
+This satisfies Proposition~\ref{prop:excessive-leverage} assumptions, yielding the claimed threshold.
+

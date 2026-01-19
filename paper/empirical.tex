@@ -1,0 +1,170 @@
+
+\section{Empirical Methodology}\label{app:methodology}
+We backtest the mechanisms of~\S\ref{sec:numerics} on Hyperliquid's October 10, 2025 autodeleveraging episode.
+Price shocks are represented by timestamps where the chain records an ADL tranche and are indexed by discrete times $t=1,\dots,T$ and grouped by coin $c$.
+Each shock carries a realized deficit $D_t\ge0$, the total negative equity of the losers in that liquidation cluster, and an account-level winner capacity vector $w_t=(w_{t,1},\dots,w_{t,W_t})\in\reals_+^{W_t}$ measured in USD of available positive PNL.
+Summing $D_t$ across shocks therefore reports the aggregate shortfall that must be socialized during the event.
+
+Controllers either select a scalar severity $\theta_t\ge0$ or a haircut vector $h_t\in[0,1]^{\mathcal{W}_t}$, generating a per-round budget $B_t=\theta_t D_t$ or $B_t=w_t^\top h_t$, respectively.
+Budgets are always truncated to the realized winner capacity $\sum_i w_{t,i}$.
+The release contains $T=1097$ shocks across 160 coins.
+There are 201 positive-deficit shocks and 896 shocks with zero deficit (for which policies abstain).
+Across the positive-deficit shocks this reconstruction captures $23.2$M USD of loser shortfall, while the corresponding feasible haircut mass $B_t^\star=\min\{D_t,\sum_i w_{t,i}\}$ only totals $6.6$M USD, leaving at least $16.6$M USD structurally uncovered irrespective of policy.
+
+\subsection{Data construction}\label{app:methodology-data}
+
+\iparagraph{Event sample.}
+The data (provided by Hydromancer and SonarX) captured Hyperliquid's core exchange logs covering 21:15--21:30 UTC and retain every coin with at least one liquidation cluster.
+
+\iparagraph{Clustering.}
+Within each coin, fills are sorted by timestamp and grouped into shocks via a fixed inter-arrival rule: a new cluster begins whenever the gap since the previous fill exceeds $\Delta=5$s.
+If $t_k$ denotes the time of fill $k$, the cluster index obeys $\kappa_1=0$ and $\kappa_k=\kappa_{k-1}+\ones\{t_k-t_{k-1}>\Delta\}$.
+All statistics below are computed at the cluster level.
+
+\iparagraph{Account aggregates and capacities.}
+We aggregate filled trades (`fills') by account within a cluster.
+Positive realized PNL marks winners and contributes to capacity, whereas negative PNL marks losers and contributes to the deficit $D_t=\sum_{i\in\mathcal{L}_t}(-\mathrm{PNL}_{t,i})$.
+Capacities are inferred in the order \texttt{notional} $\rightarrow$ $|\texttt{start\_position}\times\texttt{price}|$ $\rightarrow$ $|\texttt{closed\_pnl}|$, providing a conservative haircut limit when full notional quotes are unavailable.
+Queue priority scores replicate the production ranking by summing realized PNL per account within the cluster.
+
+\iparagraph{Production queue replay.}
+We reconstruct the realized queue budgets $B_t^{\mathrm{Q}}$ and haircuts by replaying the published priority order and shaving capacity greedily until the recorded budget is exhausted.
+This reproduces the overshoot and participation statistics observed on chain and serves as our baseline.
+
+\subsection{Losses and objectives}\label{app:methodology-objectives}
+
+\iparagraph{Scalar severity surrogate.}
+Controllers that only choose $\theta_t$ minimize the convex surrogate
+\[
+  f_t(\theta)
+  =
+  -\lambda\,\theta D_t
+  + \mu\,(M_t-\theta D_t)_+
+  + \nu\,(\theta D_t - D_t)_+^2,
+\]
+where $M_t=\max_i w_{t,i}$ is the largest winner, and $\lambda,\mu,\nu\ge0$ trade off solvency, shortfall, and overshoot.
+The subgradient satisfies
+\[
+  \partial f_t(\theta)
+  = -\lambda D_t - \mu D_t\,\mathbb{1}\{M_t>\theta D_t\}
+    + 2\nu (\theta D_t - D_t)_+\, D_t.
+\]
+We tune $(\lambda,\mu,\nu)$ and the initialization/step-size grid $(\theta_{\text{init}},\eta_0)$ by coarse search and fix the best setting for all severity controllers.
+
+\iparagraph{Lagged severity publication.}
+To mirror venue operations, severities are published before a shock begins.
+We therefore treat the iterate produced after shock $t-1$ as the action applied during shock $t$: $\widehat\theta_t$ is broadcast, capped by the PoA limit once the actual deficit $D_t$ is known, and only then do we update the controller via~$f_t$.
+Budgets use a coin-specific forecast $\widehat D_t=D_{t-1}$ (falling back to $D_t$ on the first shock) so that $B_t=\widehat\theta_t\,\widehat D_t$ is set prior to observing $D_t$.
+This forecast also drives the pre-shock churn multiplier that freezes winner participation, ensuring that queue eligibility reflects the published haircut rather than the ex-post realized one.
+Overshoot therefore reflects forecast error: $\widehat D_t>D_t$ intentionally produces excess haircutting, while $\widehat D_t<D_t$ manifests as residuals.
+
+\iparagraph{Vector objective.}
+When actions are full haircut vectors, we minimize
+\[
+\begin{aligned}
+  \mathcal{L}_t(h)
+  ={}& -\lambda_{\mathrm{vec}}\sum_{i=1}^{W_t} w_{t,i}(1 - e^{-\beta h_i})
+      + \mu_{\mathrm{spr}}\Vert h\Vert_2^2
+      + \phi\,\Vert h - \bar\theta_t \mathbf{1}\Vert_2^2 \\
+      & + \nu_{\mathrm{vec}}\,(w_t^\top h - D_t)_+^2
+      + \gamma_{\mathrm{vec}}\,(D_t - w_t^\top h)_+^2
+      + \rho_{\mathrm{vec}}\,(D_t - w_t^\top h)_+,
+\end{aligned}
+\]
+with $\bar\theta_t=\min\{D_t,\sum_i w_{t,i}\}/D_t$ when $D_t>0$.
+The weights $(\lambda_{\mathrm{vec}},\beta,\mu_{\mathrm{spr}},\phi,\nu_{\mathrm{vec}},\gamma_{\mathrm{vec}},\rho_{\mathrm{vec}})$ are fixed to the calibrated values shipped with the release.
+We enforce the budget equality constraint $w_t^\top h=B_t^\star$ with $B_t^\star=\min\{D_t,\sum_i w_{t,i}\}$ via the projection described below.
+
+\iparagraph{Revenue loss proxy.}\label{app:revenue-proxy}
+To translate haircut allocations into an expected loss of future fees we use a funding-rate-based proxy.
+For each winner $i$ in shock $t$ we observe the realized haircut ratio $f_{t,i}=h_{t,i}/w_{t,i}$ and treat it as a churn shock with probability $p_{t,i}=1-\exp(-\beta f_{t,i})$, where $\beta=5$ controls sensitivity.
+The remaining positive PNL $w_{t,i}$ serves as a conservative proxy for the trader's deployable notional.
+We combine this with an estimate of per-dollar daily revenue,
+\[
+  r^{\text{daily}}_{t}
+  = 24\,|f^{\text{fund}}_t|
+    + \tau_{\text{turn}} \cdot \text{fee}_{\text{taker}},
+\]
+where $|f^{\text{fund}}_t|$ is the absolute funding rate observed for the coin (defaulting to $1.5\times 10^{-5}$ when data are sparse), $\tau_{\text{turn}}=1$ assumes one notional turnover per day, and $\text{fee}_{\text{taker}}=4$ bps.
+Multiplying $r^{\text{daily}}_{t}$ by a two-year horizon $H=730$ days yields the per-dollar lifetime value estimate.
+The per-shock revenue loss is then
+\[
+  \text{RevLoss}_t = H\, r^{\text{daily}}_{t} \sum_{i} w_{t,i}\, p_{t,i},
+\]
+which we aggregate across shocks for each controller.
+
+The exponential hazard ensures that zero haircuts map to zero churn, while large cuts asymptotically drive $p_{t,i}\rightarrow 1$, mirroring the threshold-like exits we observe in the account-level replay data.
+We set $\beta=5$ so that a 10\% haircut implies $\approx 39\%$ churn and a 20\% haircut implies $\approx 63\%$ churn, matching the attrition rate measured by comparing pre/post-shock winner mass in the Hyperliquid October 10 dataset~\cite{HyperMultiAssetedADL}.
+Funding rates $f^{\text{fund}}_t$ come directly from the ``misc events'' stream bundled with the same dataset: we aggregate the absolute funding paid per coin over the preceding hour and divide by the coin's outstanding notional to obtain an hourly rate.
+When the logs lack funding entries for a coin during the 12-minute window we substitute the cross-sectional median absolute rate of $1.5\times 10^{-5}$ (the BTC/ETH average).
+This proxy ignores second-order follower dynamics (e.g., strategic re-entry) but provides a consistent way to compare policies on a common revenue scale using only observable quantities.
+
+\subsection{Policies}\label{app:strategies}
+
+\paragraph{Queue (production).}
+The production policy orders winners by the realized priority score $q_{t,i}$ and applies the greedy queue allocator with the recorded budget $B_t^{\mathrm{Q}}$.
+Haircuts therefore match the on-chain execution and may overshoot $D_t$.
+
+\paragraph{Smart queue.}
+We retain the same ordering but cap the budget at the feasible mass: $B_t^{\mathrm{SQ}}=\min\{D_t,\sum_i w_{t,i}\}$.
+The greedy queue allocator is applied under this cap, eliminating overshoot while keeping the queue's concentration.
+
+\paragraph{Exponential backoff.}
+We impose the per-round PoA cap $\Theta_t=\frac{R}{1+R}\,\frac{M_t}{D_t}$ (uncapped if $R=\infty$) and update
+\[
+  \theta_t = \min\{\theta^{\mathrm{cand}}_t,\Theta_t\},
+  \qquad
+  \theta^{\mathrm{cand}}_t=
+  \begin{cases}
+    \theta_0,& t=1,\\
+    \max\{\alpha \theta_{t-1},\theta_0\},& t\ge 2,
+  \end{cases}
+\]
+with $\alpha\in(0,1)$.
+The resulting budget $B_t=\min\{\theta_t D_t,\sum_i w_{t,i}\}$ is distributed pro-rata across capacities.
+
+\paragraph{Mirror descent.}
+We initialize at $\theta_1=\theta_{\mathrm{init}}$, compute $g_t\in\partial f_t(\theta_t)$, take $\tilde\theta_{t+1}=\theta_t-\eta_t g_t$ with $\eta_t=\eta_0/\sqrt{t}$, perform a short backtracking line-search, and project onto $[0,\Theta_t]$.
+Budgets and allocations mirror the backoff policy and differ only through the learning dynamics.
+
+\paragraph{Dynamic2 warm start.}
+Dynamic2 matches mirror descent but sets $\theta_1$ to the levered pro-rata fixed point $\theta_{\mathrm{LPR}}$ computed from the first shock before continuing with the same updates.
+
+\paragraph{Vector mirror descent.}
+We initialize $h_t\equiv 0$ and iterate for $s=1,\dots,S$
+\[
+  \tilde h \leftarrow h - \eta_s \nabla \mathcal{L}_t(h),
+  \qquad
+  h \leftarrow \Pi_{\mathcal{C}_t}(\tilde h),
+\]
+where $\mathcal{C}_t=\{h\in[0,1]^{W_t}: w_t^\top h=B_t^\star\}$.
+The projection solves
+\[
+  \min_{h\in[0,1]^{W_t}} \tfrac12\Vert h-\tilde h\Vert_2^2
+  \ \text{s.t.}\ w_t^\top h=B_t^\star,
+\]
+and admits the closed form $h_i(\tau)=\big[\tilde h_i - \tau w_{t,i}\big]_0^1$ with $\tau$ found by bisection so that $\sum_i w_{t,i} h_i(\tau)=B_t^\star$.
+
+\subsection{Backtest summary}\label{app:methodology-results}
+
+\paragraph{Coverage.}
+Aggregate deficits over the event sum to \$23.2M USD.
+Because instantaneous winner capacity is thin, the feasible budget mass $B_t^\star$ totals only \$6.6M USD, leaving a structural residual of \$16.6M USD that no policy can eliminate.
+This hard floor explains why every controller asymptotes near \$18M of unresolved deficit in Figure~\ref{fig:emp-outstanding}.
+
+\paragraph{Production queue.}
+The replayed Hyperliquid queue expends \$658.5M USD of budgets, overshoots deficits by \$653.6M USD, and still leaves \$18.4M USD of residual loss.
+Average winner participation is $38.3\%$, yet the queue routinely concentrates haircuts: the mean budget-to-deficit ratio exceeds $1.1\times10^5$ and the largest single haircut reaches \$47.2M USD.
+This misallocation also destroys \$584.4M USD of positive PNL through churn.
+
+\paragraph{Queue variants.}
+Capping the queue's budget at feasibility removes the \$653.6M USD overshoot and improves average participation to $93.7\%$, yet it still leaves \$16.7M USD of residual losses and \$6.6M USD of revenue destruction due to concentrated cuts.
+
+\paragraph{Adaptive severity controllers.}
+The exponential backoff, mirror-descent, and Dynamic2 controllers each deploy between \$1.5M and \$2.2M USD of budgets.
+Mirror descent avoids overshoot entirely, while Dynamic2 and backoff keep it within \$0.8$M--$1.4$M USD.
+All three settle in the \$22M USD residual band and limit revenue losses to \$2.9$M--$5.2$M USD.
+
+\paragraph{Vector mirror descent.}
+Optimizing the full haircut vector supplies \$9.7M USD of budgets, drives overshoot to \$5.2M USD (from forecast error), and achieves an \$18.8M USD residual with \$12.0M USD of revenue loss.
+Winner participation averages $87.7\%$, reflecting the model's explicit spreading and budget-equality constraint.

@@ -1,0 +1,161 @@
+\section{Liquidations, Autodeleveraging, and Insurance Funds}\label{app:liquidation-mechanics}
+
+\subsection{Bankruptcy Price Example}
+We illustrate the bankruptcy price calculation with an example.
+Fix $\ell^{\max}=10$ (so $m_I=0.10$) and $p_0=1$.
+Consider the five running positions from $\mathcal{P}_5$:
+\begin{align*}
+\mathfrak p_A&=(q,c,b)=(1,\,2,\,+1), &
+\mathfrak p_B&=(1,\,2/3,\,+1), &
+\mathfrak p_C&=(4,\,8/3,\,-1),\\
+\mathfrak p_D&=(1,\,2/19,\,+1), &
+\mathfrak p_E&=(1,\,10/99,\,-1).
+\end{align*}
+Applying Eq.~\eqref{eq:bankruptcy-price-no-funding} with $\Gamma=0$ and $p_t=p_0=1$ gives
+\begin{align*}
+ p^{bk}(\mathfrak p_A)&=\max\{0,\,1-2\}=0,\\
+ p^{bk}(\mathfrak p_B)&=1-\tfrac{2}{3}=\tfrac{1}{3},\\
+ p^{bk}(\mathfrak p_C)&=1-\tfrac{\,8/3\,}{-4}=1+\tfrac{2}{3}=\tfrac{5}{3}\ (1.6667),\\
+ p^{bk}(\mathfrak p_D)&=1-\tfrac{2}{19}\approx 0.8947,\\
+ p^{bk}(\mathfrak p_E)&=1+\tfrac{10}{99}\approx 1.1010.
+\end{align*}
+Thus A is robust to a full drop to zero; B (long 1.5x) has a low bankruptcy price; C (short 1.5x) bankrupts only if the mark rises above $\tfrac{5}{3}$; D/E (long ~9.5x/9.9x) have high bankruptcy prices close to $1$, making negative equity likely if liquidations lag.
+
+\subsection{Liquidation Price Example}
+For $\mu=0.10$ the liquidation prices evaluate to factors $\tfrac{1}{1-\mu}$ for longs and $\tfrac{1}{1+\mu}$ for shorts. Using the same five positions with $p_{t_i}=1$ and $\Gamma=0$,
+\begin{align*}
+ \hat p^{liq}(\mathfrak p_A,0.10)&=\tfrac{1}{0.9}\cdot 0=0,\\
+ \hat p^{liq}(\mathfrak p_B,0.10)&=\tfrac{1}{0.9}\cdot \tfrac{1}{3}\approx 0.3704,\\
+ \hat p^{liq}(\mathfrak p_C,0.10)&=\tfrac{1}{1.1}\cdot \tfrac{5}{3}\approx 1.5152,\\
+ \hat p^{liq}(\mathfrak p_D,0.10)&=\tfrac{1}{0.9}\cdot \tfrac{17}{19}\approx 0.9942,\\
+ \hat p^{liq}(\mathfrak p_E,0.10)&=\tfrac{1}{1.1}\cdot \tfrac{109}{99}\approx 1.0010.
+\end{align*}
+Long A would liquidate only if the oracle fell to $0$ (\ie~never occurs in practice). The short $C$ becomes liquidatable only when the oracle exceeds its threshold; the high‑leverage long $D$ and short $E$ become liquidatable close to $1$ if collateral is not topped up.
+
+\subsection{Execution Price Example}
+We summarize execution with a directional linear impact rule consistent with our notation: selling to close a long uses $P^{sell}(x)=p_t-\alpha x$ and buying to close a short uses $P^{buy}(x)=p_t+\alpha x$ with $\alpha>0$; the volume–weighted execution for a slice is
+$\;p^{exec}=p_t-\tfrac{\alpha}{2}\Delta q$ if $b_i=+1$ (sell) and $p^{exec}=p_t+\tfrac{\alpha}{2}\Delta q$ if $b_i=-1$ (buy).
+Directional linear impact with a single $\alpha$: selling (closing a long) uses $P^{sell}(x)=p_t-\alpha x$, buying (closing a short) uses $P^{buy}(x)=p_t+\alpha x$. The slice VWAP over $[0,\Delta q]$ is $p^{exec}=p_t\mp\tfrac{\alpha}{2}\Delta q$ (minus for sells, plus for buys). Fix $\alpha=1.0$ and choose $\Delta q$ per case:
+\begin{itemize}[leftmargin=12pt]
+  \item $\mathfrak p_A$ (Long): $p_t=1.30$, $\Delta q=0.5$ gives $p^{exec}=1.30-0.5\cdot 0.5=1.05$. Here $p^{bk}(\mathfrak p_A)=\max\{p_t-2,0\}=0$, so $p^{exec}>p^{bk}$.
+  \item $\mathfrak p_B$ (Long): $p_t=0.95$, $\Delta q=0.2$ gives $p^{exec}=0.95-0.5\cdot 0.2=0.85$. With $p^{bk}(\mathfrak p_B)=\max\{0.95-\tfrac{2}{3},0\}\approx 0.2833$, we have $p^{exec}>p^{bk}$.
+  \item $\mathfrak p_C$ (Short): $p_t=1.60$, $\Delta q=2.0$ gives $p^{exec}=1.60+0.5\cdot 2.0=2.60$. Since $p^{bk}(\mathfrak p_C)=p_t+\tfrac{8/3}{4}=p_t+\tfrac{2}{3}=2.2667$, $p^{exec}>p^{bk}$ (adverse for a short).
+  \item $\mathfrak p_D$ (Long; targeted): $p_t=0.98$, $\Delta q=0.4$ gives $p^{exec}=0.98-0.5\cdot 0.4=0.78$. With $p^{bk}(\mathfrak p_D)=p_t-\tfrac{2}{19}\approx 0.8747$, we achieve $p^{exec}<p^{bk}$.
+  \item $\mathfrak p_E$ (Short): $p_t=1.05$, $\Delta q=0.4$ gives $p^{exec}=1.05+0.5\cdot 0.4=1.25$. With $p^{bk}(\mathfrak p_E)=p_t+\tfrac{10}{99}\approx 1.151$, we have $p^{exec}>p^{bk}$.
+\end{itemize}
+
+\subsection{Liquidation Costs Example}
+To ground the fee model, let $\tau(\Delta q)=\tau^{fix}+\phi^{mark} p_t\,\Delta q+\phi^{exec} p^{exec}\,\Delta q$ as in practice.
+Consider $p_t=1.30$, a slice $\Delta q=0.50$, and a realized $p^{exec}=1.32$.
+Two parameterizations:
+\begin{itemize}[leftmargin=12pt]
+  \item Binance: $(\tau^{fix},\phi^{mark},\phi^{exec})=(0,\,40\,\mathrm{bps},\,0)$ \citep{BinanceFuturesInsuranceFund}. Then $\tau=0.0040\cdot 1.30\cdot 0.50=0.0026$.
+  \item Hyperliquid: $(\tau^{fix},\phi^{mark},\phi^{exec})=(0,\,20\,\mathrm{bps},\,10\,\mathrm{bps})$ \citep{HyperliquidDocsLiquidations}. Then $\tau=0.0020\cdot 1.30\cdot 0.50+0.0010\cdot1.32\cdot0.50\approx0.00130+0.00066=0.00196$.
+\end{itemize}
+\noindent Rates and formulas vary by venue and contract; the above are illustrative parameterizations consistent with public documentation that liquidation fees are charged and, on centralized venues like Binance, credited to the insurance fund.
+
+\subsection{Liquidation Strategy Example}
+Consider short $\mathfrak p_E$ when the mark jumps to $p_t=5.5$ (ignore funding for this step).
+Equity before liquidation is $e\approx c_E - q_E(p_t-p_0)=\tfrac{10}{99}-1\cdot 4.5\approx -4.399$.
+Let $\mu=0.10$ and a linear fee $\tau(\Delta q)=\phi\,p_t\,\Delta q$ with $\phi=30$bps. Suppose execution is $p^{exec}=5.55$.
+Using \eqref{eq:liquidation-strategy} and $b=-1$, the minimal slice that restores maintenance solves
+\[
+\Delta q\;=\; \frac{\mu p_t q - e}{\,b(p^{exec}-p_t) - \phi p_t + \mu p_t\,}
+\;=\; \frac{0.1\cdot 5.5\cdot 1 - (-4.399)}{-0.05 - 0.003\cdot 5.5 + 0.1\cdot 5.5}\ \approx\ \frac{4.949}{0.4835}\ \approx\ 10.24.
+\]
+Since $\Delta q>q_E$, a greedy policy would fully close E (cap at $\Delta q=q_E=1$).
+
+\subsection{Bad Debt Example}
+Consider the high‑leverage long $\mathfrak p_D$ and a slice of size $\Delta q=0.4$ at $p_t=0.98$.
+Suppose the realized execution is $p^{exec}_D=0.78$ while the bankruptcy level is $p^{bk}_D\approx 0.8747$.
+Since $p^{exec}_D<p^{bk}_D$, the realized shortfall from this slice is
+\[
+ (p^{bk}_D-p^{exec}_D)\,\Delta q\ \approx\ (0.8747-0.78)\cdot 0.4\ \approx\ 0.0379,
+\]
+which contributes this amount to the period bad debt $D_t$ (cf. Eq.~\eqref{eq:total-bad-debt}).
+Coverage follows the solvency waterfall: the insurance fund pays $\min\{\mathsf{IF}_t, D_t\}$ and any residual shortfall is socialized via ADL (see \S\ref{subsec:exchange-solvency}, \S\ref{subsec:adl}).
+The short case is symmetric: buying to close above bankruptcy ($p^{exec}>p^{bk}$) realizes a positive contribution to $D_t$.
+
+\subsection{Anatomy of a Liquidation}
+Given the bankruptcy, liquidation, and execution prices, we can now describe the high-level algorithm that liquidations follow.
+We note that many live liquidation systems will have much more complex liquidation algorithms.
+These complexities deal with the coordination costs of coordinating many parties (\eg~oracle provider, liquidators, spot order book liquidity) and precise models that exchanges use for their liquidation strategy.
+However, we effectively lump all of these complexities into the definition of the liquidation strategy.
+The following liquidation loop is run on every oracle update received by a perpetuals exchange: 
+\begin{itemize}
+\item For $\mathfrak{p}_{i,t} \in \mathcal{P}_n$
+\begin{itemize}
+\item If the maintenance margin condition~\eqref{eq:maintenance-margin} is violated for $\mathfrak{p}_{i,t}$
+\begin{enumerate}
+    \item Remove the position $\mathcal{P}_n \leftarrow \mathcal{P}_n - \{\mathfrak{p}_{i, t}\}$
+    \item Estimate quantity to liquidate $\Delta q_i \leftarrow L(\mathfrak{p}_{i,t}, p_{1:T}, \hat{p}_{1:T})$
+    \item Liquidator executes $\Delta q_i$-sized liquidation and returns their execution price $p^{exec}(\Delta q_i)$
+    \item Update position: $\mathfrak{p}'_{i,t} = (q_i - \Delta q_i, c_i + p^{exec} \Delta q_i - \tau_t(\Delta q_i), t_i, b_i)$
+    \item Re-add the position position: $\mathcal{P}_n \leftarrow \mathcal{P}_n \cup \{\mathfrak{p}'_{i, t}\}$
+    \item Update equity using~\eqref{eq:adjusted-equity}
+\end{enumerate}
+\end{itemize}
+\item If $\mathfrak{p}_{i,t}$ has bad debt, $\tilde{e}(\mathfrak{p}_{i,t}, p_{1:T}, \hat{p}_{1:T}, \Delta q_i) < 0$, then
+\begin{itemize}
+    \item Attempt to use the insurance fund, if it exists, to cover the bad debt (\S\ref{subsec:exchange-solvency})
+    \item If the insurance fund is insufficiently sized, utilize an ADL mechanism (\S\ref{subsec:adl})
+\end{itemize}
+\end{itemize}
+
+\iparagraph{Example.}
+We illustrate a five–step path using the running set $\mathcal{P}_5$ from above. Take $T=5$, $p_0=1$ and
+\[
+ p_{0:5}=(1.00,\ 0.96,\ 0.94,\ 0.97,\ 1.05,\ 1.12),\qquad \hat p_t=p_t\ \ (t=0,\dots,5),\qquad \mu=m_I=0.10.
+\]
+Executions follow the directional linear impact rule introduced in the execution example: for a slice of size $\Delta q$ at time $t$, the volume‑weighted execution is
+\[
+\begin{aligned}
+  p^{exec}\;=\;p_t-\tfrac{\alpha}{2}\,\Delta q&\quad\text{(sell to close a long, $b=+1$)},\\
+  p^{exec}\;=\;p_t+\tfrac{\alpha}{2}\,\Delta q&\quad\text{(buy to close a short, $b=-1$)}.
+\end{aligned}
+\]
+with $\alpha>0$. We take $\alpha=1.0$ and choose $\Delta q$ via the loop's liquidation size $\Delta q_i=L(\mathfrak{p}_{i,t}, p_{1:T}, \hat p_{1:T})$.
+
+\iparagraph{D liquidates at $t=2$ (no bad debt).}
+At $t=2$ we have $p_2=0.94$ and the maintenance condition \eqref{eq:maintenance-margin} is violated for $\mathfrak p_{D,2}$, so the loop attempts a partial liquidation. Take $\Delta q_D=L(\mathfrak{p}_{D,2},\cdot)=0.20$ for illustration. By \eqref{eq:bankruptcy-price-no-funding},
+\[
+ p^{bk}(\mathfrak p_{D,2})\;=\;p_2-\tfrac{2}{19}\;\approx\;0.8347,\qquad
+ p^{exec}_D\;=\;p_2-\tfrac{\alpha}{2}\Delta q_D\;=\;0.94-0.10\;=\;0.84.
+\]
+Since $p^{exec}_D>p^{bk}(\mathfrak p_{D,2})$, this slice executes without bad debt; the position is updated to $\mathfrak{p}'_{D,2}=(q_D-\Delta q_D,\ c_D+p^{exec}_D\Delta q_D-\tau_2(\Delta q_D),\ t_D,\ b_D)$ and equity is updated per \eqref{eq:adjusted-equity} before reinserting $\mathfrak{p}'_{D,2}$ into $\mathcal{P}_n$.
+
+\iparagraph{E becomes bad debt at $t=4$ (short; liquidation fails).}
+At $t=4$ we have $p_4=1.05$ and \eqref{eq:maintenance-margin} is violated for $\mathfrak p_{E,4}$ with $b_E=-1$. The loop selects a liquidation size; take a full close $\Delta q_E=L(\mathfrak{p}_{E,4},\cdot)=1$. By \eqref{eq:bankruptcy-price-no-funding},
+\[
+ p^{bk}(\mathfrak p_{E,4})\;=\;p_4+\tfrac{10}{99}\;\approx\;1.1510,\qquad
+ p^{exec}_E\;=\;p_4+\tfrac{\alpha}{2}\Delta q_E\;=\;1.05+0.50\;=\;1.55.
+\]
+For a short, $p^{exec}>p^{bk}$ realizes bad debt. The loop records the shortfall
+\[
+ D_4\;=\;\big(p^{exec}_E-p^{bk}(\mathfrak p_{E,4})\big)\,\Delta q_E\;\approx\;0.399,\qquad \tilde e\big(\mathfrak p_{E,4}, p_{1:5}, \hat p_{1:5}, \Delta q_E\big)\;=\;-D_4<0,
+\]
+and then attempts coverage via the insurance fund (up to $\min\{\mathsf{IF}_4,D_4\}$); any residual shortfall $R_4$ defined by Eq.~\eqref{eq:adl-residual} is socialized by ADL (see \S\ref{subsec:adl}).
+
+
+\subsection{Optimal Capital Structure Derivation}\label{app:optimal-capital}
+In this section, we compute the optimal static insurance fund size $IF^\star$ that trades off the opportunity cost of capital and expected uncovered losses beyond $IF$.
+
+\paragraph{Setup.} Let $D_T$ denote the round deficit with pdf $f_D$ and tail $\bar F_D(x)=\Pr[D_T>x]$. Let $r>0$ be the per‑unit capital cost and $\kappa>0$ the per‑unit social loss weight of uncovered deficits.
+The objective is
+\[
+\min_{IF \ge 0}\ \mathcal{J}(IF)\;=\; r\,IF\;+\;\kappa\,\mathbb{E}\big[(D_T-IF)_+\big]
+\]
+which equals $r\,IF+\kappa\int_{IF}^{\infty}(x-IF)f_D(x)\,dx$ when $D_T$ is continuous.
+
+\paragraph{Optimality condition.} Differentiating yields,
+\[
+\mathcal{J}'(IF)= r - \kappa\,\bar F_D(IF).
+\]
+Hence any interior minimizer satisfies $\bar F_D(IF^\star)=r/\kappa$, i.e.,
+\[
+IF^\star \;=\; \bar F_D^{-1}\!\Big(\tfrac{r}{\kappa}\Big)\;=\;\mathrm{VaR}_{\,1-r/\kappa}(D_T).
+\]
+
+\paragraph{Assumptions.}
+In order for this argument to hold, we assume that $\mathcal J$ is convex and differentiable.
+Moreover, if $r\ge \kappa$ then we define $IF^\star=0$, whereas if $r\to 0$, then $IF^\star \rightarrow \sup D_T$.

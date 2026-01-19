@@ -1,0 +1,10 @@
+{
+  "deficit_measure": "liquidated_total_equity",
+  "gap_ms": 5000,
+  "input_csv": "/Users/nagumba/Documents/Projects/ADL-experiments/adl-analysis-minimal/external/HyperReplay/data/canonical/adl_detailed_analysis_REALTIME.csv",
+  "max_wave_deficit_usd": 11831911.509488944,
+  "max_wave_max_loss_usd": 10925707.159377944,
+  "num_waves_with_positive_deficit": 16,
+  "prefer_equity": true,
+  "total_deficit_usd": 100063386.6859475
+}

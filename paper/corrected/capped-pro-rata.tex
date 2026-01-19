@@ -1,0 +1,132 @@
+\section{Theoretical Properties of Capped Pro-Rata}\label{app:capped-pro-rata}
+We formalize the theoretical properties of the capped pro-rata rule.
+We note that the capped pro-rata algorithm in Algorithm~\ref{alg:capped-pro-rata} is a standard water-filling algorithm~\cite{BoydVandenberghe2004}.
+The most similar known prior work to this appendix is the study of how such algorithms provide sybil resistance in concave games in decentralized systems~\cite{johnson2023concave}.
+One can view our result as a generalization of this result.
+
+\iparagraph{Properties of ADL rules.}
+Fix time $T$, state $\mathcal{P}_n$, winners $\mathcal{W}_T$, and endowments $w_i = w_{T,i}$ (under PNL-only, $w_i = (\mathrm{PNL}_{T,i})_+$).
+Let $s_{\pi, i} = (1-h_{\pi, i}) w_i$ be the surviving endowment of position $i$ under ADL policy $\pi$.
+The post-ADL equity is $e'_{\pi,i} = c_{i,T} + \mathrm{PNL}_{i,T} - h_{\pi,i} w_i = c_{i,T} + (1-h_{\pi,i})w_i + (\mathrm{PNL}_{i,T})_-$ (where $(\mathrm{PNL}_{i,T})_-$ is the negative PNL component, if any).
+We say that a feasible ADL rule $\pi$ (\S\ref{subsec:adl}) satisfies:
+\begin{enumerate}
+\item \emph{Sybil resistance:} Outcomes are invariant to splitting/merging accounts. For any split $w_i=\sum_{a=1}^r z_a$, the sum of survivors equals the original survivor: $\sum_{a} s^{(i\to z)}_{\pi,a} = s_{\pi,i}$.
+\item \emph{Scale invariance:} $s_\pi(c w;\theta_\pi)=c\,s_\pi(w;\theta_\pi)$ for $c>0$.
+\item \emph{Monotonicity:} If $w_1 \ge \dots \ge w_k$, then $s_{\pi,1}\ge\dots\ge s_{\pi,k}$ (and consequently, if cash components are comparable, post-ADL equities preserve ordering).
+\item \emph{Interior regularity:} The map $(w,H)\mapsto s_\pi(w;H)$ is $C^1$ on the interior, \ie~for $w_i>0$ for all $i$ and $0<H<\sum_i w_i$.
+\end{enumerate}
+Collectively, we refer to these as the \emph{fairness properties} for an ADL rule.
+
+\begin{proposition}[Uniqueness of the Pro-Rata Rule]\label{thm:unique-pro-rata}
+If a feasible ADL policy $\pi$ satisfies the fairness properties, then $s_\pi(w;H)=s^{\mathrm{PR}}(w;H)$ for all feasible inputs, where $s$ is the surviving endowment.
+\end{proposition}
+
+\begin{proof}
+Fix a feasible budget $H$ (\eg~maximum value of $\theta_n D_T$) and write $\beta_i\in(0,1]$ for the haircut cap on winner $i$ (as in the capped pro-rata rule~\eqref{eq:capped-pro-rata}), and sort so that $w_1\ge\cdots\ge w_k$.
+View the haircuts as a function of the realized budget $b\in[0,H]$ and write $h_i(b)$ for the haircut on winner $i$ when total budget $b$ has been allocated.
+For each $b$, define the \emph{active set}
+\begin{equation}\label{eq:active-set}
+A(b)=\{i:\ h_i(b)<\beta_i\}
+\end{equation}
+of winners whose caps are not yet binding.
+Since there are only finitely many caps $\beta_i$, there exists a partition $0=b_0<b_1<\cdots<b_L=H$ such that on each open interval $I_\ell:=(b_{\ell-1},b_\ell)$ the active set is constant.
+Fix one such interval $I=(b_-,b_+)$ and write $A = A(b)$ for any $b\in I$.
+On this interval, by scale invariance on $A$ (per–unit budget increases all active haircuts at the same rate) and feasibility (budget constraint in endowment space),
+\[
+  \frac{d h_i}{d b} \;=\; \frac{1}{\sum_{j\in A} w_j}\quad (i\in A),
+  \qquad
+  \frac{d h_i}{d b}=0\quad (i\notin A).
+\]
+Using the interior regularity property, we can integrate these terms on $I$.
+Integrating from $b_-$ to any $b\in I$ gives the \emph{unconstrained} evolution
+\[
+  \tilde h_i(b)
+  \;=\;
+  \begin{cases}
+    h_i(b_-)\;+\;\dfrac{b-b_-}{\sum_{j\in A} w_j} & (i\in A),\\[4pt]
+    h_i(b_-) & (i\notin A).
+  \end{cases}
+\]
+All active coordinates in $A$ move in lockstep, so on $I$ there exists a scalar function $\eta_I(b)$ such that
+\[
+  h_i(b) \;=\; \min\{\eta_I(b),\beta_i\}\quad (i\in A),\qquad
+  h_i(b)=h_i(b_-) \quad (i\notin A).
+\]
+The budget identity can then be written on $I$ as
+\[
+  b \;=\; \sum_{i\notin A} w_i h_i(b_-)\;+\;\sum_{i\in A} w_i \min\{\eta_I(b),\beta_i\},
+\]
+which, for fixed $b\in I$, is a continuous strictly increasing function of $\eta_I(b)$ as long as $A\neq\emptyset$.
+Thus for each $b\in I$ there is a unique $\eta_I(b)$ solving the budget identity.
+In particular, on the \emph{interior} interval where no caps bind ($A=\{1,\dots,k\}$ and $b\in(0,U_T)$ where $U_T=\sum_i w_i$), we have $h_i(b)=\eta_I(b)$ for all $i$ so the budget identity reduces to
+\[
+  b \;=\; \sum_{i=1}^k w_i h_i(b) \;=\; \eta_I(b)\sum_{i=1}^k w_i \;=\; \eta_I(b)\,U_T,
+\]
+which implies $\eta_I(b)=b/U_T$.
+Thus on this interval
+$s_{\pi,i}=(1-\eta_I(b))w_i=(1-b/U_T)w_i$, i.e., proportional to endowment.
+
+Sybil resistance implies allocations depend only on total endowment: splitting $w_i=\sum_a z_a$ leaves
+$\sum_a z_a h_a(b)$ and hence the survivor $\sum_a (1-h_a(b)) z_a$ unchanged for each $b$, so the proportional form on interior intervals is preserved under arbitrary splits.
+Monotonicity further restricts how indices can exit the active set as $b$ increases.
+At an endpoint $b_\ell$ where $\eta_I(b_\ell)$ first hits some cap $\beta_m$, all indices $j\ge m$ with $\beta_j\le \beta_m$ must saturate together; otherwise we would have $w_m\ge w_j$ but $(1-h_m(b_\ell))w_m < (1-h_j(b_\ell))w_j$, violating monotonicity.
+Thus, as we pass from $I_\ell$ to $I_{\ell+1}$, a (possibly empty) tail $\{j>m\}$ leaves $A$, contributing a fixed amount $\sum_{j>m} w_j\beta_j$ to the budget, and the same water-filling argument applies on the remaining head with reduced budget.
+
+Concatenating the solution across all intervals $I_\ell$ yields the reverse–waterfilling form
+$h_i=\min\{\eta^\star,\beta_i\}$ with $\eta^\star$ chosen so that $\sum_i w_i h_i=H$, which is exactly capped pro–rata.
+Uniqueness follows either from the strict convexity of the Euclidean projection onto
+$\{h\in[0,1]^k:\ \sum_i w_i h_i=H\}$ or from the monotone one–dimensional search that defines $\eta^\star$.
+\end{proof}
+
+\iparagraph{Convex optimality}\label{app:convex-optimality}
+We now formalize the convex-welfare interpretation of capped pro-rata from \S\ref{sec:fairness}.
+Fix time $T$, winners $\mathcal{W}_T$ with endowments $w_i = w_{T,i}$ (under PNL-only, $w_i = (\mathrm{PNL}_{T,i})_+$), and effective caps $\beta_i = \min\{\overline{h}_i, 1-(\underline{e}_i - c_{i,T})/w_{i,T}\}$ defined by the haircut and equity constraints~\eqref{eq:haircut-constraint}--\eqref{eq:equity-constraint}, where the equity constraint is reinterpreted in terms of minimum post-ADL endowment.
+Let $B_T = \theta_{\pi} D_T(\mathcal{P}_n)$ denote the haircut budget from~\eqref{eq:eta}, and let $\phi:[0,1]\to\reals$ be a strictly convex increasing function representing per-unit haircut disutility as in~\eqref{eq:haircut-optimization}.
+We consider choosing haircuts $h=(h_i)_{i\in\mathcal{W}_T}$ to minimize the endowment-weighted total disutility $\sum_{i\in\mathcal{W}_T} w_i \phi(h_i)$ subject to the per-account bounds $0\le h_i\le\beta_i$ and the aggregate budget constraint $\sum_{i\in\mathcal{W}_T} w_i h_i = B_T$ (budget constraint in endowment space).
+
+\begin{proposition}[Convex optimality]\label{prop:capped-prorata-optimal}
+    For any strictly convex increasing $\phi$, the unique solution to
+    \[
+      \min_{h}\ \sum_{i\in\mathcal{W}_T} w_i\,\phi(h_i)
+      \quad\text{s.t.}\quad
+      \sum_{i\in\mathcal{W}_T} w_i h_i = B_T,\quad 0\le h_i\le \beta_i
+    \]
+    is the capped pro-rata rule~\eqref{eq:capped-pro-rata}, \ie
+    \[
+      h_{\pi_{CP},i}^\star = \min\{\eta^\star, \beta_i\},
+    \]
+    where $\eta^\star$ satisfies $\sum_{i\in\mathcal{W}_T} w_i h_{\pi_{CP},i}^\star = B_T$.
+\end{proposition}
+
+\begin{proof}
+    The optimization problem is convex with a strictly convex objective and linear constraints, so any point satisfying the Karush--Kuhn--Tucker (KKT) conditions is the unique global minimizer~\cite[Ch.~5]{BoydVandenberghe2004}.
+    For $B_T$ in the interior of the feasible region ($0<B_T<C(\beta)$, where $C(\beta)=\sum_i w_i \beta_i$ is defined in~\eqref{eq:max-cap}), Slater's condition holds, so KKT conditions are necessary and sufficient.
+    The Lagrangian is
+    \[
+      \mathcal{L}(h,\lambda,\mu,\nu)
+      \;=\;
+      \sum_{i\in\mathcal{W}_T} w_i \phi(h_i)
+      + \lambda\!\left(\sum_{i\in\mathcal{W}_T} w_i h_i - B_T\right)
+      + \sum_{i\in\mathcal{W}_T} \mu_i(h_i-\beta_i)
+      - \sum_{i\in\mathcal{W}_T} \nu_i h_i,
+    \]
+    with multipliers $\lambda\in\reals$ and $\mu_i,\nu_i\ge 0$.
+    Stationarity with respect to $h_i$ gives
+    \[
+      w_i \phi'(h_i) + \lambda w_i + \mu_i - \nu_i = 0 \quad (i\in\mathcal{W}_T),
+    \]
+    together with complementary slackness $\mu_i(h_i-\beta_i)=0$ and $\nu_i h_i=0$.
+    For any index $i$ with $0<h_i<\beta_i$, we must have $\mu_i=\nu_i=0$, so $\phi'(h_i)=-\lambda$.
+    Because $\phi'$ is strictly increasing, this implies $h_i=c$ for some common scalar $c$ independent of $i$.
+    If $h_i=\beta_i$ then $\mu_i\ge 0$ and $\nu_i=0$, and if $h_i=0$ then $\nu_i\ge 0$ and $\mu_i=0$, so in all cases the KKT conditions imply the water-filling form
+    \[
+      h_i = \min\{c,\beta_i\}\quad (i\in\mathcal{W}_T).
+    \]
+    The budget constraint $\sum_{i\in\mathcal{W}_T} w_i h_i = B_T$ then reduces to finding $c$ such that
+    \[
+      \sum_{i\in\mathcal{W}_T} w_i \min\{c,\beta_i\} = B_T.
+    \]
+    The left-hand side is continuous and strictly increasing in $c$ on $[0,1]$ as long as some $\beta_i>0$, so there is a unique $c=\eta^\star$ solving this equation.
+    Thus every KKT point has the capped pro-rata form $h_i=\min\{\eta^\star,\beta_i\}$ with $\eta^\star$ determined by the budget, which is exactly the rule in~\eqref{eq:capped-pro-rata}.
+    Strict convexity of the objective implies this KKT point is the unique global minimizer, proving the claim (see also the standard water-filling derivations in~\cite[Ch.~5]{BoydVandenberghe2004}).
+\end{proof}

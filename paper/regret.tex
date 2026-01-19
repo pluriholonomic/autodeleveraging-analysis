@@ -1,0 +1,92 @@
+\subsection{Regret Analysis}\label{app:regret}
+In this appendix, we unify the regret analysis for the severity (scalar) and MDIC (vector) controllers. We present a master theorem for Online Mirror Descent (OMD) with constraints and then specialize it to our specific settings.
+
+\iparagraph{Master mirror descent bound.}
+Consider a sequence of convex loss functions $f_t: \mathcal{X} \to \mathbb{R}$ on a convex set $\mathcal{X}$. A learner chooses $x_t \in \mathcal{X}$ and updates using Online Mirror Descent (OMD) with a proximal function (Bregman divergence) $D(\cdot\|\cdot)$.
+
+\begin{theorem}[OMD Regret]\label{thm:master-regret}\label{thm:md-regret-7}
+    Let subgradients be bounded by $\|g_t\|_* \le G$ in the dual norm, and let the domain diameter be bounded by $D_{\max}^2 \ge \max_{x} D(x\|x_1)$. With step size $\eta_t = \frac{D_{\max}}{G\sqrt{t}}$, the regret satisfies:
+    \[
+    \sum_{t=1}^T f_t(x_t) - \min_{x \in \mathcal{X}} \sum_{t=1}^T f_t(x) \;\le\; 2 D_{\max} G \sqrt{T}.
+    \]
+    When convex constraints $c_t(x) \le 0$ are imposed, applying OMD to the Lagrangian guarantees the same $O(\sqrt{T})$ regret and $O(T^{-1/2})$ average constraint violation \citep{Hazan2019}.
+\end{theorem}
+\noindent We refer the interested reader to the standard reference~\citep{Hazan2019} for a detailed proof.
+
+\iparagraph{Residual value function and subgradients.}
+We now describe the residual value function, which is the main subject of mirror descent analysis.
+For each round $t$, let $\mathcal{W}_t$ be the set of winners with equities $e_{t,i}>0$, haircut caps $\beta_{t,i}\in[0,1]$, and weights $w_{t,i}\ge 0$.
+The residual value function parametrized by a haircut budget $b$ is
+\[
+\tilde L_t(b)\;=\;\min_{h\in[0,1]^{|W_t|}} \;\sum_{i\in W_t} (1-h_i)\,\lambda_{t,i} e_{t,i}
+\quad\text{s.t.}\quad \sum_{i\in W_t} e_{t,i} h_i = b,\;\; 0 \le h_i \le \beta_{t,i}.
+\]
+Let $\tau_t(b)$ be the KKT multiplier of the budget constraint at $b$.
+
+\begin{lemma}[Convexity and subgradient]\label{lem:convexity}
+For each $t$, $b \mapsto \tilde L_t(b)$ is convex, nonincreasing, and piecewise-linear on $[0,\bar b_t]$; any KKT multiplier $-\tau_t(b)\in\partial \tilde L_t(b)$ is a valid subgradient.
+Moreover $|\tau_t(b)| \le \max_{i\in W_t} w_{t,i}$.
+\end{lemma}
+\begin{proof}
+The program is a linear minimization with a right-hand-side parameter $b$.
+Sensitivity analysis implies that the optimal value is convex and piecewise-linear in $b$, and that the negative of the budget multiplier is a subgradient.
+Complementary slackness yields $h_i = \min\{\beta_{t,i}, \tau_t(b) w_{t,i}\}$ on active coordinates, which bounds $|\tau_t(b)|$ by the maximum weight.
+\end{proof}
+\noindent Lemma~\ref{lem:convexity} verifies the curvature and bounded-subgradient assumptions required by the master OMD regret theorem (Theorem~\ref{thm:master-regret}) hold, so we can directly plug $\tilde L_t$ into that framework.
+
+\iparagraph{Severity optimization.}
+In the main text, the severity controller selects a scalar severity $\theta_t \in [0,\Theta_t]$ that determines the haircut budget via $b_t = \theta_t D_t$.
+Optimizing over $b_t$ or $\theta_t$ is equivalent; we keep $b_t$ as the decision variable in the appendix for notational convenience.
+The loss is $f_t(b) = \tilde L_t(b)$, which is convex by Lemma~\ref{lem:convexity}.
+We use the Euclidean divergence $D(x\|y) = \tfrac12 (x-y)^2$, reducing OMD to projected gradient descent.
+
+\begin{corollary}[Severity Regret]\label{cor:severity-regret}
+    Let $G = \max_{t,i} w_{t,i}$ be the bound on subgradients (marginal haircut savings). The severity controller achieves:
+\[
+    \mathrm{Regret}_T^{(\mathrm{sev})} \;\le\; 2 \bar{b} G \sqrt{T}.
+\]
+\end{corollary}
+\begin{proof}
+    The domain diameter is $\bar{b}$. By Lemma~\ref{lem:convexity}, subgradients correspond to dual variables bounded by the maximum weight $G$. The result follows directly from Theorem~\ref{thm:master-regret}.
+\end{proof}
+
+\iparagraph{Haircut optimization (MDIC).}
+
+The MDIC controller optimizes $u_t = (\theta_t, v_t)$, where $\theta_t$ is severity and $v_t$ are ranking weights. We use a block-separable divergence $D = D_\phi \oplus D_\Phi$, where $D_\Phi$ is the KL-divergence for the weights.
+
+\begin{corollary}[MDIC Regret]\label{cor:mdic-regret}
+    The MDIC controller achieves regret bounded by:
+    \[
+    O\left( \sqrt{T D_\phi(\theta^\star\|\theta_1)} \;+\; \sqrt{T D_\Phi(v^\star\|v_1)} \right).
+    \]
+    Initializing $v_1$ as the uniform distribution over the active winners (so every coordinate is strictly positive) minimizes $D_\Phi(v^\star\|v_1)$ to $O(\log |\mathcal{W}_t|)$, yielding better scaling than Euclidean approaches for high-dimensional weight vectors.
+\end{corollary} 
+\begin{proof}[Proof of the $\mathcal{O}(\log |\mathcal{W}_t|)$ claim]
+The divergence $D_\Phi$ induced by the entropy mirror map equals the Kullback--Leibler divergence:
+\[
+D_\Phi(v^\star\|v_1)=\sum_{i\in W_t} v^\star_i \log\frac{v^\star_i}{v_{1,i}}.
+\]
+Uniform initialization over active winners sets $v_{1,i}=1/|\mathcal{W}_t|$.
+Hence
+\[
+D_\Phi(v^\star\|v_1)=\sum_{i} v^\star_i \log v^\star_i + \log |\mathcal{W}_t|.
+\]
+The first term is the negative Shannon entropy of $v^\star$ and is therefore non-positive, implying $D_\Phi(v^\star\|v_1)\le \log |W_t|$.
+Thus the initialization costs at most $O(\log |\mathcal{W}_t|)$.
+\end{proof}
+
+\iparagraph{Linear regret for static policies.}
+The following toy instance shows that any static severity $\bar\theta$ can incur $\Omega(T)$ regret. Consider two regimes $A$ (liquidity) and $B$ (stress) alternating every round, with loss
+\[
+  f_t(\theta) = \begin{cases}
+    \theta & t \in A \quad (\text{minimize severity to protect revenue}),\\
+    \bar{\theta} - \theta & t \in B \quad (\text{maximize severity to clear deficits}).
+  \end{cases}
+\]
+The per-round optimizer is $\theta^\star_t = 0$ in $A$ and $\theta^\star_t = \bar\theta$ in $B$, so
+\[
+\sum_{t=1}^T f_t(\theta) - f_t(\theta^\star_t) = \tfrac{T}{2}\theta + \tfrac{T}{2}(\bar\theta-\theta) = \tfrac{T}{2}\bar\theta = \Omega(T)
+\]
+for any fixed $\theta \in [0,\bar\theta]$.
+By Theorem~\ref{thm:master-regret}, OMD (and MDIC) with $\eta_t\propto 1/\sqrt{T}$ attains $O(\sqrt{T})$ regret on the same sequence.
+

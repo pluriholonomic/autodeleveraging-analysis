@@ -1,0 +1,12 @@
+{
+  "eval_horizon_ms": 500,
+  "hyperreplay_root": "/Users/nagumba/Documents/Projects/ADL-experiments/adl-analysis-minimal/external/HyperReplay",
+  "loser_waves_csv": "/Users/nagumba/Documents/Projects/ADL-experiments/adl-analysis-minimal/out/bad_debt_loser_waves.csv",
+  "mean_theta_needed_capped": 0.3857082770304588,
+  "mean_theta_prod_capped": 0.6288947333571955,
+  "num_waves": 16,
+  "total_H_prod_usd": 66753276.21823378,
+  "total_budget_needed_usd": 15079669.609008066,
+  "total_deficit_usd": 100063386.6859475,
+  "total_overshoot_prod_minus_needed_usd": 51673606.60922572
+}

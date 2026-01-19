@@ -1,0 +1,97 @@
+
+
+\section{Algorithms for Pro-Rata Haircut Rules}\label{app:pro-rata-algorithms}
+
+This appendix collects the explicit water-filling procedures for both the capped pro-rata rule from~\cref{subsec:fairness} and the Risk-Aware Pro-Rata (RAP) rule from~\cref{sec:glpr}.
+Each algorithm takes the winner equities $\{e_i\}$, effective caps $\{\beta_i\}$, and the target budget $B_T = \theta_{\pi} D_T(\mathcal{P}_n)$, returning the optimal haircut vector $h$ or declaring infeasibility if the aggregate capacity $\sum_i e_i \beta_i$ is insufficient.
+
+\subsection{Capped Pro-Rata Water-Filling}
+
+The procedure below enforces the constraints in \cref{eq:capped-pro-rata,eq:eta} by leveling caps until the target budget is met.
+
+\begin{algorithm}
+\caption{Capped Pro-Rata Haircut Allocation (Water-Filling)}
+\label{alg:capped-pro-rata}
+\begin{algorithmic}[1]
+\Require Winner equities $e = \{e_1, \dots, e_n\}$, Effective caps $\beta = \{\beta_1, \dots, \beta_n\}$, Target budget $B_T$
+\Ensure Haircut vector $h = \{h_1, \dots, h_n\}$ or \textbf{Infeasible}
+
+\State $C \leftarrow \sum_{i=1}^n e_i \beta_i$ \Comment{Compute total maximum capacity}
+\If{$B_T > C$}
+    \State \Return \textbf{Infeasible}
+\EndIf
+
+\State Sort indices $p$ such that $\beta_{p_1} \le \beta_{p_2} \le \dots \le \beta_{p_n}$
+\State $\beta_{p_0} \leftarrow 0$
+\State $V \leftarrow 0$ \Comment{Cumulative value covered}
+\State $R \leftarrow \sum_{i=1}^n e_i$ \Comment{Remaining uncapped equity mass}
+
+\For{$k = 1$ to $n$}
+    \State $\Delta \beta \leftarrow \beta_{p_k} - \beta_{p_{k-1}}$
+    \State $V_{\mathrm{step}} \leftarrow \Delta \beta \cdot R$
+    
+    \If{$V + V_{\mathrm{step}} \ge B_T$}
+        \State $\eta \leftarrow \beta_{p_{k-1}} + (B_T - V) / R$ \Comment{Found the water level $\eta$}
+        \State \textbf{break}
+    \EndIf
+    
+    \State $V \leftarrow V + V_{\mathrm{step}}$
+    \State $R \leftarrow R - e_{p_k}$ \Comment{User $p_k$ becomes fully capped}
+\EndFor
+
+\If{$V < B_T$} \Comment{Handling numerical edge cases}
+    \State $\eta \leftarrow \beta_{p_n}$
+\EndIf
+
+\For{$i = 1$ to $n$}
+    \State $h_i \leftarrow \min\{\eta, \beta_i\}$
+\EndFor
+\State \Return $h$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Risk-Aware Pro-Rata Water-Filling}
+
+The RAP algorithm augments the capped procedure by prioritizing accounts according to their ``cap-to-weight'' ratios $\beta_i / w_i$.
+
+\begin{algorithm}
+\caption{Risk-Aware Pro-Rata Haircut Allocation (Weighted Water-Filling)}
+\label{alg:rap-water-filling}
+\begin{algorithmic}[1]
+\Require Winner equities $e = \{e_1, \dots, e_n\}$, Effective caps $\beta = \{\beta_1, \dots, \beta_n\}$, Risk weights $w = \{w_1, \dots, w_n\}$, Target budget $B_T$
+\Ensure Haircut vector $h = \{h_1, \dots, h_n\}$ or \textbf{Infeasible}
+
+\State $C \leftarrow \sum_{i=1}^n e_i \beta_i$ \Comment{Total capacity}
+\If{$B_T > C$}
+    \State \Return \textbf{Infeasible}
+\EndIf
+
+\State Compute ratios $r_i \leftarrow \beta_i / w_i$ for all $i$ (treat $w_i=0$ as $r_i=\infty$)
+\State Sort indices $p$ such that $r_{p_1} \le r_{p_2} \le \dots \le r_{p_n}$
+\State $r_{p_0} \leftarrow 0$
+\State $V \leftarrow 0$ \Comment{Cumulative value covered}
+\State $W_{\mathrm{rem}} \leftarrow \sum_{i=1}^n e_i w_i$ \Comment{Remaining weighted equity mass}
+
+\For{$k = 1$ to $n$}
+    \State $\Delta \tau \leftarrow r_{p_k} - r_{p_{k-1}}$
+    \State $V_{\mathrm{step}} \leftarrow \Delta \tau \cdot W_{\mathrm{rem}}$
+    
+    \If{$V + V_{\mathrm{step}} \ge B_T$}
+        \State $\tau \leftarrow r_{p_{k-1}} + (B_T - V) / W_{\mathrm{rem}}$ \Comment{Found the scaling factor $\tau$}
+        \State \textbf{break}
+    \EndIf
+    
+    \State $V \leftarrow V + V_{\mathrm{step}}$
+    \State $W_{\mathrm{rem}} \leftarrow W_{\mathrm{rem}} - e_{p_k} w_{p_k}$ \Comment{User $p_k$ becomes fully capped}
+\EndFor
+
+\If{$V < B_T$} \Comment{Numerical edge case}
+    \State $\tau \leftarrow r_{p_n}$
+\EndIf
+
+\For{$i = 1$ to $n$}
+    \State $h_i \leftarrow \min\{\beta_i, \tau w_i\}$
+\EndFor
+\State \Return $h$
+\end{algorithmic}
+\end{algorithm}
